@@ -293,7 +293,7 @@ PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Tar
                                                      max_ring_difference_num_to_process);
    }
 
-
+// Daniel: abilitate do_time_frame if there is a fdef file
    if (this->frame_defs_filename.size()!=0)
        {
          this->frame_defs = TimeFrameDefinitions(this->frame_defs_filename);
@@ -435,6 +435,7 @@ compute_sub_gradient_without_penalty_plus_sensitivity(TargetT& gradient,
   assert(subset_num<this->num_subsets);
   long num_stored_events = 0;
 
+// Daniel: look into all the frames defined into the fdef file
   for (this->current_frame_num = 1;
        this->current_frame_num<=this->frame_defs.get_num_frames();
        ++this->current_frame_num)
@@ -465,6 +466,7 @@ compute_sub_gradient_without_penalty_plus_sensitivity(TargetT& gradient,
   unsigned long int more_events =
           this->do_time_frame? 1 : this->num_events_to_store;
 
+  // Daniel:  it avoids event out of the frame that one has defined
   while (current_time < start_time &&
                  this->list_mode_data_sptr->get_next_record(record) == Succeeded::yes)
       {
@@ -472,7 +474,7 @@ compute_sub_gradient_without_penalty_plus_sensitivity(TargetT& gradient,
               current_time = record.time().get_time_in_secs();
       }
 
-  // now save position such that we can go back
+  // Daniel:  now save position such that we can go back
   frame_start_positions[this->current_frame_num] =
 this->list_mode_data_sptr->save_get_position();
 
