@@ -80,6 +80,8 @@ public:
   int set_num_subsets(const int new_num_subsets);
 
 protected:
+ \\ Daniel: definition of function for new time frame                                   
+  virtual void start_new_time_frame(const unsigned int new_frame_num);                                  
   virtual double
     actual_compute_objective_function_without_penalty(const TargetT& current_estimate,
                                                       const int subset_num)
