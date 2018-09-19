@@ -54,7 +54,9 @@ ScatterSimulation::sample_scatter_points()
   // shift origin such that we refer to the middle of the scanner
   // this is to be consistent with projector conventions
   // TODO use class function once it exists
-  const float z_to_middle = (image.get_max_index() + image.get_min_index()) * voxel_size.z() / 2.F;
+  const float z_to_middle =
+    (image.get_max_index() + image.get_min_index())*voxel_size.z()/2.F;
+  // ORIGINTODO: ^
   origin.z() -= z_to_middle;
 
   this->scatter_volume = voxel_size[1] * voxel_size[2] * voxel_size[3];

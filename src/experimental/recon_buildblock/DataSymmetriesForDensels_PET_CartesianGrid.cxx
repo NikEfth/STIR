@@ -81,20 +81,22 @@ find_relation_between_coordinate_systems(int& num_planes_per_scanner_ring,
         if (fabs(num_planes_per_axial_pos_float - num_planes_per_axial_pos[segment_num]) > 1.E-5)
           error("DataSymmetriesForDensels_PET_CartesianGrid can currently only support z-grid spacing "
                 "equal to the axial sampling in the projection data divided by an integer. Sorry\n");
-      }
-
-      const float delta = proj_data_info_cyl_ptr->get_average_ring_difference(segment_num);
-
-      // KT 20/06/2001 take origin.z() into account
-      axial_pos_to_z_offset[segment_num]
-          = (cartesian_grid_info_ptr->get_max_index() + cartesian_grid_info_ptr->get_min_index()) / 2.F
-            - cartesian_grid_info_ptr->get_origin().z() / image_plane_spacing
-            - (num_planes_per_axial_pos[segment_num]
-                   * (proj_data_info_cyl_ptr->get_max_axial_pos_num(segment_num)
-                      + proj_data_info_cyl_ptr->get_min_axial_pos_num(segment_num))
-               + num_planes_per_scanner_ring * delta)
-                  / 2;
-    }
+ 
+    }  
+    
+    const float delta = proj_data_info_cyl_ptr->get_average_ring_difference(segment_num);
+    
+    // KT 20/06/2001 take origin.z() into account
+    axial_pos_to_z_offset[segment_num] = 
+      (cartesian_grid_info_ptr->get_max_index() + cartesian_grid_info_ptr->get_min_index())/2.F
+      - cartesian_grid_info_ptr->get_origin().z()/image_plane_spacing
+      -
+      (num_planes_per_axial_pos[segment_num]
+       *(proj_data_info_cyl_ptr->get_max_axial_pos_num(segment_num)  
+         + proj_data_info_cyl_ptr->get_min_axial_pos_num(segment_num))
+       + num_planes_per_scanner_ring*delta)/2;
+    // ORIGINDOTO: ^
+  }
 }
 
 /*! The DiscretisedDensity pointer has to point to an object of
