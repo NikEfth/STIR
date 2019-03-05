@@ -401,6 +401,7 @@ run_tests_all_symmetries(const shared_ptr<ProjDataInfo>& proj_data_info_sptr,
 	"do_symmetry_swap_segment := 0\n"
 	"do_symmetry_swap_s := 0\n"
 	"do_symmetry_shift_z := 0\n"
+    "do_symmetry_flip_timing := 0\n"
 	"End Ray Tracing Matrix Parameters :=\n";
       if (!check(proj_matrix_no_sym.parse(str), 
 		 "parsing projection matrix parameters"))
@@ -423,6 +424,7 @@ run_tests_all_symmetries(const shared_ptr<ProjDataInfo>& proj_data_info_sptr,
 	"do_symmetry_swap_segment := 1\n"
 	"do_symmetry_swap_s := 1\n"
 	"do_symmetry_shift_z := 1\n"
+    "do_symmetry_flip_timing := 1\n"
 	"End Ray Tracing Matrix Parameters :=\n";
       if (check(proj_matrix_with_sym.parse(str), 
 		 "parsing projection matrix parameters"))
@@ -446,6 +448,7 @@ run_tests_all_symmetries(const shared_ptr<ProjDataInfo>& proj_data_info_sptr,
 	"do_symmetry_swap_segment := 1\n"
 	"do_symmetry_swap_s := 1\n"
 	"do_symmetry_shift_z := 1\n"
+    "do_symmetry_flip_timing := 0\n"
 	"End Ray Tracing Matrix Parameters :=\n";
       if (check(proj_matrix_with_sym.parse(str), 
 		 "parsing projection matrix parameters"))
@@ -469,6 +472,7 @@ run_tests_all_symmetries(const shared_ptr<ProjDataInfo>& proj_data_info_sptr,
 	"do_symmetry_swap_segment := 1\n"
 	"do_symmetry_swap_s := 1\n"
 	"do_symmetry_shift_z := 1\n"
+    "do_symmetry_flip_timing := 0\n"
 	"End Ray Tracing Matrix Parameters :=\n";
       if (check(proj_matrix_with_sym.parse(str), 
 		 "parsing projection matrix parameters"))
@@ -492,6 +496,7 @@ run_tests_all_symmetries(const shared_ptr<ProjDataInfo>& proj_data_info_sptr,
 	"do_symmetry_swap_segment := 0\n"
 	"do_symmetry_swap_s := 1\n"
 	"do_symmetry_shift_z := 1\n"
+    "do_symmetry_flip_timing := 0\n"
 	"End Ray Tracing Matrix Parameters :=\n";
       if (check(proj_matrix_with_sym.parse(str), 
 		 "parsing projection matrix parameters"))
@@ -515,6 +520,7 @@ run_tests_all_symmetries(const shared_ptr<ProjDataInfo>& proj_data_info_sptr,
 	"do_symmetry_swap_segment := 1\n"
 	"do_symmetry_swap_s := 0\n"
 	"do_symmetry_shift_z := 1\n"
+    "do_symmetry_flip_timing := 0\n"
 	"End Ray Tracing Matrix Parameters :=\n";
       if (check(proj_matrix_with_sym.parse(str), 
 		 "parsing projection matrix parameters"))
@@ -538,6 +544,7 @@ run_tests_all_symmetries(const shared_ptr<ProjDataInfo>& proj_data_info_sptr,
 	"do_symmetry_swap_segment := 1\n"
 	"do_symmetry_swap_s := 1\n"
 	"do_symmetry_shift_z := 0\n"
+    "do_symmetry_flip_timing := 0\n"
 	"End Ray Tracing Matrix Parameters :=\n";
       if (check(proj_matrix_with_sym.parse(str), 
 		 "parsing projection matrix parameters"))
@@ -561,6 +568,7 @@ run_tests_all_symmetries(const shared_ptr<ProjDataInfo>& proj_data_info_sptr,
 	"do_symmetry_swap_segment := 0\n"
 	"do_symmetry_swap_s := 0\n"
 	"do_symmetry_shift_z := 1\n"
+    "do_symmetry_flip_timing := 0\n"
 	"End Ray Tracing Matrix Parameters :=\n";
       if (check(proj_matrix_with_sym.parse(str), 
 		 "parsing projection matrix parameters"))
@@ -568,6 +576,31 @@ run_tests_all_symmetries(const shared_ptr<ProjDataInfo>& proj_data_info_sptr,
 	  proj_matrix_with_sym.set_up(proj_data_info_sptr, density_sptr);
 	  run_tests_2_proj_matrices(proj_matrix_no_sym, proj_matrix_with_sym);
 	}
+    }
+
+    {
+      cerr << "\t\tTesting with only flip_timing\n";
+      ProjMatrixByBinUsingRayTracing proj_matrix_with_sym;
+
+      stringstream str;
+      str <<
+    "Ray Tracing Matrix Parameters :=\n"
+    "restrict to cylindrical FOV := 1\n"
+    "number of rays in tangential direction to trace for each bin := 1\n"
+    "use actual detector boundaries := 0\n"
+    "do symmetry 90degrees min phi := 0\n"
+    "do symmetry 180degrees min phi := 0\n"
+    "do_symmetry_swap_segment := 0\n"
+    "do_symmetry_swap_s := 0\n"
+    "do_symmetry_shift_z := 0\n"
+    "do_symmetry_flip_timing := 1\n"
+    "End Ray Tracing Matrix Parameters :=\n";
+      if (check(proj_matrix_with_sym.parse(str),
+         "parsing projection matrix parameters"))
+    {
+      proj_matrix_with_sym.set_up(proj_data_info_sptr, density_sptr);
+      run_tests_2_proj_matrices(proj_matrix_no_sym, proj_matrix_with_sym);
+    }
     }
 }
 
@@ -688,33 +721,33 @@ DataSymmetriesForBins_PET_CartesianGridTests::run_tests()
   cerr << "Tests for DataSymmetriesForBins_PET_CartesianGrid\n";
   if (template_proj_data_filename == 0)
     {
-      {  
-	cerr << "Testing span=1\n";
-	shared_ptr<Scanner> scanner_sptr(new Scanner(Scanner::E953));
-	proj_data_info_sptr.reset( 
-	  ProjDataInfo::ProjDataInfoCTI(scanner_sptr, 
-					/*span=*/1, 
-					/*max_delta=*/5,
-					/*num_views=*/8,
-					/*num_tang_poss=*/16));
+//      {
+//	cerr << "Testing span=1\n";
+//	shared_ptr<Scanner> scanner_sptr(new Scanner(Scanner::E953));
+//	proj_data_info_sptr.reset(
+//	  ProjDataInfo::ProjDataInfoCTI(scanner_sptr,
+//					/*span=*/1,
+//					/*max_delta=*/5,
+//					/*num_views=*/8,
+//					/*num_tang_poss=*/16));
   
-	run_tests_for_1_projdata(proj_data_info_sptr);
-      }
-      {  
-	cerr << "Testing span=3\n";
-	// warning: make sure that parameters are ok such that hard-wired
-	// bins above are fine (e.g. segment 3 should be allowed)
-	shared_ptr<Scanner> scanner_sptr(new Scanner(Scanner::E953));
-	proj_data_info_sptr.reset(
-	  ProjDataInfo::ProjDataInfoCTI(scanner_sptr, 
-					/*span=*/3, 
-					/*max_delta=*/12,
-					/*num_views=*/8,
-					/*num_tang_poss=*/16));
+//	run_tests_for_1_projdata(proj_data_info_sptr);
+//      }
+//      {
+//	cerr << "Testing span=3\n";
+//	// warning: make sure that parameters are ok such that hard-wired
+//	// bins above are fine (e.g. segment 3 should be allowed)
+//	shared_ptr<Scanner> scanner_sptr(new Scanner(Scanner::E953));
+//	proj_data_info_sptr.reset(
+//	  ProjDataInfo::ProjDataInfoCTI(scanner_sptr,
+//					/*span=*/3,
+//					/*max_delta=*/12,
+//					/*num_views=*/8,
+//					/*num_tang_poss=*/16));
   
   
-	run_tests_for_1_projdata(proj_data_info_sptr);
-      }
+//	run_tests_for_1_projdata(proj_data_info_sptr);
+//      }
       {
     cerr << "Testing with proj_data_info with time-of-flight";
     // warning: make sure that parameters are ok such that hard-wired

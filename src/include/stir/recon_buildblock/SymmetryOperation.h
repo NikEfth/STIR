@@ -31,7 +31,7 @@
 #define __stir_recon_buildblock_SymmetryOperation_H__
 
 #include "stir/common.h"
-
+#include "stir/Bin.h"
 
 START_NAMESPACE_STIR
 
@@ -92,6 +92,29 @@ public:
     transform_proj_matrix_elems_for_one_densel(
       ProjMatrixElemsForOneDensel&) const;
 
+protected:
+    int k_shift;
+
+    inline void
+      _transform_bin_coordinates(Bin& b) const
+    {
+        int nikos = 0;
+        b.timing_pos_num() *= -1;
+    }
+    inline void
+      _transform_view_segment_indices(ViewSegmentNumbers&) const
+    {
+        int nikos = 0;
+    }
+    inline void
+      _transform_image_coordinates(BasicCoordinate<3,int>& c) const
+    {
+        // I have to flip around the center of the LOR.
+//        c[3] = -c[3];
+//        c[2] = -c[2];
+//        c[1] += z_shift;
+        int nikos = 0;
+    }
 };
 
 

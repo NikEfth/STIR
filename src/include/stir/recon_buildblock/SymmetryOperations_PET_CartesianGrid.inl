@@ -47,6 +47,7 @@ SymmetryOperation_PET_CartesianGrid_z_shift::
     transform_bin_coordinates(Bin& b) const
 {
   b.axial_pos_num() += axial_pos_shift;
+  _transform_bin_coordinates(b);
 }
 
 void 
@@ -58,6 +59,7 @@ SymmetryOperation_PET_CartesianGrid_z_shift::
 void SymmetryOperation_PET_CartesianGrid_z_shift::transform_image_coordinates(BasicCoordinate<3,int>&c) const
 {			
   c[1] += z_shift;
+  _transform_image_coordinates(c);
 }
 
 //////////////////////////////////////////
@@ -560,6 +562,7 @@ SymmetryOperation_PET_CartesianGrid_swap_xmx_ymy::
   b.axial_pos_num() += axial_pos_shift;
   b.segment_num() *= -1;
   b.tangential_pos_num() *= -1;
+    _transform_bin_coordinates(b);
 }
 void 
 SymmetryOperation_PET_CartesianGrid_swap_xmx_ymy::
@@ -573,6 +576,7 @@ void SymmetryOperation_PET_CartesianGrid_swap_xmx_ymy::transform_image_coordinat
   c[3] = -c[3];	
   c[2] = -c[2];	
   c[1] += z_shift;
+  _transform_image_coordinates(c);
 }
 
 ///////////////////////////////////////

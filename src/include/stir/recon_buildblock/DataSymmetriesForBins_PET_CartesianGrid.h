@@ -79,6 +79,7 @@ public:
       <li>axial (i.e. positive vs. negative segment): \a do_symmetry_swap_segment </li>
       <li>tangential (i.e. positive vs negative s): \a     do_symmetry_swap_s </li>
       <li> axial shift \a do_symmetry_shift_z </li>
+      <li> flip timing positions \a do_symmetry_flip_timing </li>
       </ul>
 
       Note that when \a do_symmetry_90degrees_min_phi=true, the value of
@@ -94,7 +95,8 @@ public:
                                           const bool do_symmetry_180degrees_min_phi = true,
 					  const bool do_symmetry_swap_segment = true,
 					  const bool do_symmetry_swap_s = true,
-					  const bool do_symmetry_shift_z = true);
+                      const bool do_symmetry_shift_z = true,
+                      const bool do_symmetry_flip_timing = true);
 
 
   virtual 
@@ -164,6 +166,8 @@ public:
     { return do_symmetry_swap_s; }
   inline bool using_symmetry_shift_z() const
     { return do_symmetry_shift_z; }
+  inline bool using_symmetry_flip_timing() const
+  {return do_symmetry_flip_timing;}
   //@}
 
 private:
@@ -172,6 +176,7 @@ private:
   bool do_symmetry_swap_segment;
   bool do_symmetry_swap_s;
   bool do_symmetry_shift_z;
+  bool do_symmetry_flip_timing;
   //const shared_ptr<ProjDataInfo>& proj_data_info_ptr;
   int num_views;
   int num_planes_per_scanner_ring;
@@ -195,25 +200,30 @@ private:
 
 
   inline bool
-  find_basic_bin(int &segment_num, int &view_num, int &axial_pos_num, int &tangential_pos_num) const;
+  find_basic_bin(int &segment_num, int &view_num, int &axial_pos_num, int &tangential_pos_num, int &timing_pos_num) const;
 
   
   inline int find_transform_z(
 			 const int segment_num, 
 			 const int  axial_pos_num) const;
+
+  inline int find_transform_tim(
+          const int timing_pos_num) const;
   
   inline SymmetryOperation* 
     find_sym_op_general_bin(   
     int s, 
     int seg, 
     int view_num, 
-    int axial_pos_num) const;
+    int axial_pos_num,
+    int timing_pos_num) const;
   
   inline SymmetryOperation* 
     find_sym_op_bin0(   
     int seg, 
     int view_num, 
-    int axial_pos_num) const;
+    int axial_pos_num,
+    int timing_pos_num) const;
   
 };
 

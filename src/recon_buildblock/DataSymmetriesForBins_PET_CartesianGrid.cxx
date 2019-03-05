@@ -125,14 +125,16 @@ DataSymmetriesForBins_PET_CartesianGrid
  const bool do_symmetry_180degrees_min_phi_v,
  const bool do_symmetry_swap_segment_v,
  const bool do_symmetry_swap_s_v,
- const bool do_symmetry_shift_z
+ const bool do_symmetry_shift_z,
+ const bool do_symmetry_flip_timing
 )
   : DataSymmetriesForBins(proj_data_info_ptr),
     do_symmetry_90degrees_min_phi(do_symmetry_90degrees_min_phi_v),
     do_symmetry_180degrees_min_phi(do_symmetry_90degrees_min_phi_v || do_symmetry_180degrees_min_phi_v),
     do_symmetry_swap_segment(do_symmetry_swap_segment_v),
     do_symmetry_swap_s(do_symmetry_swap_s_v),
-    do_symmetry_shift_z(do_symmetry_shift_z)
+    do_symmetry_shift_z(do_symmetry_shift_z),
+    do_symmetry_flip_timing(do_symmetry_flip_timing)
 {
   if(dynamic_cast<ProjDataInfoCylindrical *>(proj_data_info_ptr.get()) == NULL)
     error("DataSymmetriesForBins_PET_CartesianGrid constructed with wrong type of ProjDataInfo: %s\n"
@@ -200,13 +202,15 @@ DataSymmetriesForBins_PET_CartesianGrid
       if (this->do_symmetry_90degrees_min_phi||
 	  this->do_symmetry_180degrees_min_phi||
 	  this->do_symmetry_swap_segment||
-	  this->do_symmetry_swap_s)
+      this->do_symmetry_swap_s ||
+      this->do_symmetry_flip_timing)
 	{
 	  warning("Disabling symmetries in transaxial plane as image is shifted");
 	  this->do_symmetry_90degrees_min_phi =
 	    this->do_symmetry_180degrees_min_phi =
 	    this->do_symmetry_swap_segment =
-	    this->do_symmetry_swap_s = false;
+        this->do_symmetry_swap_s =
+        this->do_symmetry_flip_timing = false;
 	}
     }
   
@@ -243,6 +247,7 @@ operator==(const DataSymmetriesForBins_PET_CartesianGrid& sym) const
     this->do_symmetry_swap_segment == sym.do_symmetry_swap_segment &&
     this->do_symmetry_swap_s == sym.do_symmetry_swap_s &&
     this->do_symmetry_shift_z == sym.do_symmetry_shift_z &&
+    this->do_symmetry_flip_timing == sym.do_symmetry_flip_timing &&
     this->num_views == sym.num_views &&
     this->num_planes_per_scanner_ring == sym.num_planes_per_scanner_ring &&
     this->num_planes_per_axial_pos == sym.num_planes_per_axial_pos &&

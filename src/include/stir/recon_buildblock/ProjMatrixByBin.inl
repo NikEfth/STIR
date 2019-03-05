@@ -74,26 +74,26 @@ get_proj_matrix_elems_for_one_bin(
     {
       // call 'calculate' just for the basic bin
       calculate_proj_matrix_elems_for_one_bin(probabilities);
+
+      if ( proj_data_info_sptr->is_tof_data() &&
+                                   this->tof_enabled)
+      {
+          LORInAxialAndNoArcCorrSinogramCoordinates<float> lor;
+          proj_data_info_sptr->get_LOR(lor, bin);
+          LORAs2Points<float> lor2(lor);
+          probabilities.set_bin(bin);
+          // now apply TOF kernel and transform to original bin
+          // TODO: do not transform to the original bin. This should be removed as
+          // symmentries will be handled by the proper functions.
+          apply_tof_kernel_and_symm_transformation(probabilities, lor2.p1(), lor2.p2(), symm_ptr);
+      }
 #ifndef NDEBUG
       probabilities.check_state();
 #endif
       cache_proj_matrix_elems_for_one_bin(probabilities);
     }
-    if ( proj_data_info_sptr->is_tof_data() &&
-                                 this->tof_enabled)
-    {
-        LORInAxialAndNoArcCorrSinogramCoordinates<float> lor;
-        proj_data_info_sptr->get_LOR(lor, bin);
-        LORAs2Points<float> lor2(lor);
-        probabilities.set_bin(bin);
-        // now apply TOF kernel and transform to original bin
-        apply_tof_kernel_and_symm_transformation(probabilities, lor2.p1(), lor2.p2(), symm_ptr);
-    }
-    else
-    {
-        // now transform to original bin
-        symm_ptr->transform_proj_matrix_elems_for_one_bin(probabilities);
-    }
+    // now transform to original bin
+    symm_ptr->transform_proj_matrix_elems_for_one_bin(probabilities);
   }
   else // !cache_stores_only_basic_bins
   {
@@ -114,28 +114,26 @@ get_proj_matrix_elems_for_one_bin(
       {
         // call 'calculate' just for the basic bin
         calculate_proj_matrix_elems_for_one_bin(probabilities);
+
+        if ( proj_data_info_sptr->is_tof_data() &&
+                                     this->tof_enabled)
+        {
+            LORInAxialAndNoArcCorrSinogramCoordinates<float> lor;
+            proj_data_info_sptr->get_LOR(lor, bin);
+            LORAs2Points<float> lor2(lor);
+            probabilities.set_bin(bin);
+            // now apply TOF kernel and transform to original bin
+            apply_tof_kernel_and_symm_transformation(probabilities, lor2.p1(), lor2.p2(), symm_ptr);
+
+        }
 #ifndef NDEBUG
         probabilities.check_state();
 #endif
         cache_proj_matrix_elems_for_one_bin(probabilities);
       }
-      if ( proj_data_info_sptr->is_tof_data() &&
-                                   this->tof_enabled)
-      {
-          LORInAxialAndNoArcCorrSinogramCoordinates<float> lor;
-          proj_data_info_sptr->get_LOR(lor, bin);
-          LORAs2Points<float> lor2(lor);
-          probabilities.set_bin(bin);
-          // now apply TOF kernel and transform to original bin
-          apply_tof_kernel_and_symm_transformation(probabilities, lor2.p1(), lor2.p2(), symm_ptr);
-
-      }
-      else
-      {
-          // now transform to original bin
-          symm_ptr->transform_proj_matrix_elems_for_one_bin(probabilities);
-      }
-      cache_proj_matrix_elems_for_one_bin(probabilities);      
+        // now transform to original bin
+        symm_ptr->transform_proj_matrix_elems_for_one_bin(probabilities);
+        cache_proj_matrix_elems_for_one_bin(probabilities);
     }
   }  
   // stop_timers(); TODO, can't do this in a const member
@@ -163,11 +161,15 @@ ProjMatrixByBin::apply_tof_kernel_and_symm_transformation(ProjMatrixElemsForOneB
                                         diff.y() * diff.y() +
                                         diff.z() * diff.z()));
 
-    for (ProjMatrixElemsForOneBin::iterator element_ptr = probabilities.begin();
-         element_ptr != probabilities.end(); ++element_ptr)
+//    for (ProjMatrixElemsForOneBin::iterator element_ptr = probabilities.begin();
+//         element_ptr != probabilities.end(); ++element_ptr)
+
+    ProjMatrixElemsForOneBin::iterator element_ptr = probabilities.begin();
+
+    while (element_ptr != probabilities.end())
     {
         Coordinate3D<int> c(element_ptr->get_coords());
-        symm_ptr->transform_image_coordinates(c);
+        //symm_ptr->transform_image_coordinates(c);
 
         voxel_center =
                 image_info_sptr->get_physical_coordinates_for_indices (c);
@@ -185,13 +187,18 @@ ProjMatrixByBin::apply_tof_kernel_and_symm_transformation(ProjMatrixElemsForOneB
         if ((low_dist >= 4.f && high_dist >= 4.f) ||
                 (low_dist <= -4.f && high_dist <= -4.f))
         {
-            *element_ptr = ProjMatrixElemsForOneBin::value_type(c, 0.0f);
+//            *element_ptr = ProjMatrixElemsForOneBin::value_type(c, 0.0f);
+            element_ptr = probabilities.erase(element_ptr);
             continue;
         }
+        else
+        {
+            get_tof_value(low_dist, high_dist, new_value);
+            new_value *= element_ptr->get_value();
+            *element_ptr = ProjMatrixElemsForOneBin::value_type(c, new_value);
+            ++element_ptr;
+        }
 
-        get_tof_value(low_dist, high_dist, new_value);
-        new_value *= element_ptr->get_value();
-        *element_ptr = ProjMatrixElemsForOneBin::value_type(c, new_value);
     }
 }
 
