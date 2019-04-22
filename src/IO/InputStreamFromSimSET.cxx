@@ -43,12 +43,6 @@ InputStreamFromSimSET()
 InputStreamFromSimSET::
 ~InputStreamFromSimSET()
 {
-    // Try to close history file if opened
-    // -Keep in mind that this is not were the actual reading will
-    // take place, but in the InputStreamFromSimSET.
-    // Here we just need the header.
-//    if (historyFile != 0)
-//        fclose(historyFile);
 }
 
 std::string
