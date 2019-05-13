@@ -415,9 +415,9 @@ Scanner::Scanner(Type scanner_type)
   case Vereos:
     // Courtesy of Jesus Silva, Molecular Imaging Research Group, Health Research Institute of Santiago de Compostela, Galicia, Spain
     set_params(Vereos, string_list("Philips Vereos", "Vereos"),
-               40, 288, 576,
-               382.0F, 11.0F, 4.1026F, 2.0F, 0.0F,
-               1, 1, 40, 32, 40, 32, 1);
+               40, 306, 612,
+               382.0F, 11.0F, 4.1026F, 2.2876F, 0.0F,
+               1, 1, 40, 34, 1, 1, 1);
     break;
 
 
