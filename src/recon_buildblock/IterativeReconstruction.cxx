@@ -400,8 +400,8 @@ reconstruct()
 {
   this->start_timers();
 
-  this->target_data_sptr.reset(this->get_initial_data_ptr());
-  if (this->set_up(this->target_data_sptr) == Succeeded::no)
+  shared_ptr<TargetT > target_data_sptr(this->get_initial_data_ptr());
+  if (this->set_up(target_data_sptr) == Succeeded::no)
     {
       this->stop_timers();
       return Succeeded::no;
@@ -409,7 +409,7 @@ reconstruct()
 
   this->stop_timers();
 
-  return this->reconstruct(this->target_data_sptr);
+  return this->reconstruct(target_data_sptr);
 }
 
 template <typename TargetT>

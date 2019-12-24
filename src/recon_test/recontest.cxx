@@ -84,7 +84,7 @@ int main(int argc, const char *argv[])
     {
         t.stop();
         std::cout << "Total Wall clock time: " << t.value() << " seconds" << std::endl;
-        return EXIT_SUCCESS;
+        return Succeeded::yes;
     }
     else
     {

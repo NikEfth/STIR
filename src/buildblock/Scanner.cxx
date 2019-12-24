@@ -412,6 +412,15 @@ Scanner::Scanner(Type scanner_type)
 	       1);
     break;
 
+  case Vereos:
+    // Courtesy of Jesus Silva, Molecular Imaging Research Group, Health Research Institute of Santiago de Compostela, Galicia, Spain
+    set_params(Vereos, string_list("Philips Vereos", "Vereos"),
+               40, 306, 612,
+               382.0F, 11.0F, 4.1026F, 2.2876F, 0.0F,
+               1, 1, 40, 34, 1, 1, 1);
+    break;
+
+
   case GeminiTF:
     set_params(GeminiTF,string_list("GeminiTF", "Philips GeminiTF"), 
                44, 322, 287, // Based on GATE output - Normally it is 644 detectors at each of the 44 rings
