@@ -138,12 +138,12 @@ public:
     return check_if_equal(a.real(), b.real(), str) && check_if_equal(a.imag(), b.imag(), str);
   }
   //! check equality by comparing ranges and calling check_if_equal on all elements
-  template <class T=float>
+  template <class T>
     bool check_if_equal(
-      const typename VectorWithOffset<T>::iterator& t1_begin,
-      const typename VectorWithOffset<T>::iterator& t1_end,
-      const typename VectorWithOffset<T>::iterator& t2_begin,
-      const typename VectorWithOffset<T>::iterator& t2_end,
+      const typename VectorWithOffset<T>::const_iterator& t1_begin,
+      const typename VectorWithOffset<T>::const_iterator& t1_end,
+      const typename VectorWithOffset<T>::const_iterator& t2_begin,
+      const typename VectorWithOffset<T>::const_iterator& t2_end,
       const std::string& str = "")
   {
     assert(t1_end >= t1_begin);
@@ -176,15 +176,7 @@ public:
         return everything_ok = false;
       }
 
-    for (int i = t1.get_min_index(); i <= t1.get_max_index(); i++)
-      {
-        if (!check_if_equal(t1[i], t2[i], str))
-          {
-            std::cerr << "(at VectorWithOffset<" << typeid(T).name() << "> first mismatch at index " << i << ")\n";
-            return everything_ok = false;
-          }
-      }
-    return true;
+    return check_if_equal<T>(t1.begin(), t1.end(), t2.begin(), t2.end(), str);
   }
   // VC 6.0 needs definition of template members in the class def unfortunately.
   //! check equality by comparing size and calling check_if_equal on all elements
