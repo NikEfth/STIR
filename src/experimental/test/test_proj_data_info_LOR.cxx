@@ -150,17 +150,16 @@ main(int argc, char* argv[])
       CartesianCoordinate3D<float> coord_1_90;
       CartesianCoordinate3D<float> coord_2_90;
 
-      proj_data_cyl_no_arc_ptr->find_cartesian_coordinates_given_scanner_coordinates(
+      proj_data_cyl_no_arc_ptr->get_det_pair_locations_in_gantry_coordinates(
           coord_1_0, coord_2_0, ring1_0, ring2_0, det1_0, det2_0);
 
-      proj_data_cyl_no_arc_ptr->find_cartesian_coordinates_given_scanner_coordinates(
+      proj_data_cyl_no_arc_ptr->get_det_pair_locations_in_gantry_coordinates(
           coord_1_90,
           coord_2_90,
           ring1_90,
           ring2_90,
           det1_90,
-          det2_90,
-          0); // set timing_pos_num=0 as test-code is pre-TOF
+          det2_90); // set timing_pos_num=0 as test-code is pre-TOF
 
 #if 0
        cout << coord_1_0<<endl;

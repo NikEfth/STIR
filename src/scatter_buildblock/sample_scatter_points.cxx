@@ -46,18 +46,11 @@ ScatterSimulation::sample_scatter_points()
 
   BasicCoordinate<3, int> min_index, max_index;
   CartesianCoordinate3D<int> coord;
-  if (!this->density_image_for_scatter_points_sptr->get_regular_range(min_index, max_index))
-    error("scatter points sampling works only on regular ranges, at the moment\n");
-  const VoxelsOnCartesianGrid<float>& image = dynamic_cast<const VoxelsOnCartesianGrid<float>&>(attenuation_map);
-  const CartesianCoordinate3D<float> voxel_size = image.get_voxel_size();
-  CartesianCoordinate3D<float> origin = image.get_origin();
-  // shift origin such that we refer to the middle of the scanner
-  // this is to be consistent with projector conventions
-  // TODO use class function once it exists
-  const float z_to_middle =
-    (image.get_max_index() + image.get_min_index())*voxel_size.z()/2.F;
-  // ORIGINTODO: ^
-  origin.z() -= z_to_middle;
+  if(!this->density_image_for_scatter_points_sptr->get_regular_range(min_index, max_index))
+    error("scatter points sampling works only on regular ranges, at the moment\n");    
+  const VoxelsOnCartesianGrid<float>& image =
+    dynamic_cast<const VoxelsOnCartesianGrid<float>&>(attenuation_map);
+  const CartesianCoordinate3D<float> voxel_size = image.get_voxel_size();       
 
   this->scatter_volume = voxel_size[1] * voxel_size[2] * voxel_size[3];
 
@@ -77,9 +70,13 @@ ScatterSimulation::sample_scatter_points()
             ScatterPoint scatter_point;
             scatter_point.coord = convert_int_to_float(coord);
             if (randomly_place_scatter_points)
-              scatter_point.coord
-                  += CartesianCoordinate3D<float>(random_point(-.5, .5), random_point(-.5, .5), random_point(-.5, .5));
-            scatter_point.coord = voxel_size * scatter_point.coord + origin;
+              scatter_point.coord +=
+                CartesianCoordinate3D<float>(random_point(-.5,.5),
+                                             random_point(-.5,.5),
+                                             random_point(-.5,.5));
+            // AG: ^ Should this not be in range (0, 1) not (-0.5, 0.5)?
+            scatter_point.coord =
+              image.get_physical_coordinates_for_indices(scatter_point.coord);
             scatter_point.mu_value = attenuation_map[coord];
             this->scatt_points_vector.push_back(scatter_point);
           }

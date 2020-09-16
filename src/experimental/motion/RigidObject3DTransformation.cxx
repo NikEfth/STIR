@@ -274,29 +274,35 @@ RigidObject3DTransformation::transform_bin(Bin& bin,
 #ifndef NEW_ROT
   CartesianCoordinate3D<float> coord_1;
   CartesianCoordinate3D<float> coord_2;
-  dynamic_cast<const ProjDataInfoCylindricalNoArcCorr&>(in_proj_data_info)
-      .find_cartesian_coordinates_of_detection(coord_1, coord_2, bin);
-
+  dynamic_cast<const ProjDataInfoCylindricalNoArcCorr&>(in_proj_data_info).
+    get_bin_detector_locations_in_gantry_coordinates(coord_1,coord_2,bin);
+  
   // now do the movement
-
-  const CartesianCoordinate3D<float> coord_1_transformed = transform_point(coord_1);
-
-  const CartesianCoordinate3D<float> coord2transformed = transform_point(coord_2);
-
-  dynamic_cast<const ProjDataInfoCylindricalNoArcCorr&>(out_proj_data_info)
-      .find_bin_given_cartesian_coordinates_of_detection(bin, coord_1_transformed, coord2transformed);
+  
+  const CartesianCoordinate3D<float> 
+    coord_1_transformed = transform_point(coord_1);
+  
+  const CartesianCoordinate3D<float> 
+    coord2transformed = transform_point(coord_2);
+  
+  dynamic_cast<const ProjDataInfoCylindricalNoArcCorr&>(out_proj_data_info).
+    get_bin_for_gantry_coordinate_pair(bin,
+                                                      coord_1_transformed,
+					              coord2transformed);
 #else
   LORInAxialAndNoArcCorrSinogramCoordinates<float> lor;
   in_proj_data_info.get_LOR(lor, bin);
   LORAs2Points<float> lor_as_points;
   lor.get_intersections_with_cylinder(lor_as_points, lor.radius());
+#if 0
+// AG: No longer needed?
   // TODO origin
   // currently, the origin used for  proj_data_info is in the centre of the scanner,
   // while for standard images it is in the centre of the first ring.
   // This is pretty horrible though, as the transform_point function has no clue
   // where the origin is
-  // Note that the present shift will make this version compatible with the
-  // version above, as find_bin_given_cartesian_coordinates_of_detection
+  // Note that the present shift will make this version compatible with the 
+  // version above, as get_bin_for_gantry_coordinate_pair
   // also uses an origin in the centre of the first ring
   const float z_shift = (in_proj_data_info.get_scanner_ptr()->get_num_rings() - 1) / 2.F
                         * in_proj_data_info.get_scanner_ptr()->get_ring_spacing();
