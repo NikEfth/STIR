@@ -359,18 +359,20 @@ ScatterSimulation::set_up()
 void
 ScatterSimulation::check_z_to_middle_consistent(const DiscretisedDensity<3, float>& _image, const std::string& name) const
 {
-  const VoxelsOnCartesianGrid<float>& image = dynamic_cast<VoxelsOnCartesianGrid<float> const&>(_image);
-  const float z_to_middle = (image.get_max_index() + image.get_min_index()) * image.get_voxel_size().z() / 2.F;
+  const VoxelsOnCartesianGrid<float> & image = dynamic_cast<VoxelsOnCartesianGrid<float> const& >(_image);
+  const float z_to_middle =
+    image.get_image_centre_in_physical_coordinates().z();
 
 #if 0
   const Scanner& scanner = *this->proj_data_info_sptr->get_scanner_ptr();
   const float z_to_middle_standard =
     (scanner.get_num_rings()-1) * scanner.get_ring_spacing()/2;
 #endif
-  const VoxelsOnCartesianGrid<float>& act_image = dynamic_cast<VoxelsOnCartesianGrid<float> const&>(*this->activity_image_sptr);
-  const float z_to_middle_standard
-      = (act_image.get_max_index() + act_image.get_min_index()) * act_image.get_voxel_size().z() / 2.F;
-    // ORIGINTODO
+  const VoxelsOnCartesianGrid<float> & act_image =
+    dynamic_cast<VoxelsOnCartesianGrid<float> const& >(*this->activity_image_sptr);
+  const float z_to_middle_standard =
+    act_image.get_image_centre_in_physical_coordinates().z();
+
 
   if (abs(z_to_middle - z_to_middle_standard) > .1)
     error(format("ScatterSimulation: limitation in #planes and voxel-size for the {} image.\n"
