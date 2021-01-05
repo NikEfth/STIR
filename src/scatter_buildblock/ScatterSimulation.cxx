@@ -152,10 +152,11 @@ ScatterSimulation::process_data()
   bin_timer.stop();
   wall_clock_timer.stop();
 
-  if (detection_points_vector.size() != static_cast<unsigned int>(total_detectors))
+    if (detection_points_in_gantry_coords_vector.size() != static_cast<unsigned int>(total_detectors))
     {
-      warning("Expected num detectors: %d, but found %d\n", total_detectors, detection_points_vector.size());
-      return Succeeded::no;
+        warning("Expected num detectors: %d, but found %d\n",
+                total_detectors, detection_points_in_gantry_coords_vector.size());
+        return Succeeded::no;
     }
 
   info(format("TOTAL SCATTER counts before upsampling and norm = {}", total_scatter));
@@ -721,9 +722,9 @@ ScatterSimulation::set_template_proj_data_info(shared_ptr<const ProjDataInfo> ar
                           * this->proj_data_info_sptr->get_scanner_ptr()->get_num_detectors_per_ring();
 
   // get rid of any previously stored points
-  this->detection_points_vector.clear();
+  this->detection_points_in_gantry_coords_vector.clear();
   // reserve space to avoid reallocation, but the actual size will grow dynamically
-  this->detection_points_vector.reserve(static_cast<std::size_t>(this->total_detectors));
+  this->detection_points_in_gantry_coords_vector.reserve(static_cast<std::size_t>(this->total_detectors));
 
   // set to negative value such that this will be recomputed
   this->detector_efficiency_no_scatter = -1.F;

@@ -82,45 +82,43 @@ ScatterSimulation::cached_integral_over_activity_image_between_scattpoint_det(co
      Sadly, this is only supported from OpenMP 3.1, so we need to add some extra checks.
   */
   float value;
-  if (this->use_cache)
-    {
-#if defined(STIR_OPENMP)
-#  if _OPENMP >= 201012
-#    pragma omp atomic read
-#  else
-#    pragma omp critical(STIRSCATTERESTIMATIONCACHE)
-      {
-#  endif
-#endif
-      value = *location_in_cache;
-#if defined(STIR_OPENMP) && (_OPENMP < 201012)
-    }
-#endif
-}
-
-if (this->use_cache && value != cache_init_value)
-  {
-    return value;
-  }
-else
-  {
-    const float result = integral_over_activity_image_between_scattpoint_det(scatt_points_vector[scatter_point_num].coord,
-                                                                             detection_points_vector[det_num]);
-    if (this->use_cache)
-#ifdef STIR_OPENMP
-#  if _OPENMP >= 201012
-#    pragma omp atomic write
-#  else
-#    pragma omp critical(STIRSCATTERESTIMATIONCACHE)
+  #if defined(STIR_OPENMP)
+  #  if _OPENMP >= 201012
+  #    pragma omp atomic read
+  #  else
+  #    pragma omp critical(STIRSCATTERESTIMATIONCACHE)
         {
-#  endif
-#endif
-      *location_in_cache = result;
-#if defined(STIR_OPENMP) && (_OPENMP < 201012)
+  #  endif
+  #endif
+        value = *location_in_cache;
+  #if defined(STIR_OPENMP) && (_OPENMP < 201012)
+      }
+  #endif
+
+  if (this->use_cache && value != cache_init_value)
+    {
+      return value;
+    }
+  else
+    {
+      const float result = integral_over_activity_image_between_scattpoint_det(scatt_points_vector[scatter_point_num].physical_coord,
+                                                                              get_template_proj_data_info_sptr()->get_physical_coordinates_for_gantry_coordinates(
+                                                                                detection_points_in_gantry_coords_vector[det_num]));
+      if (this->use_cache)
+  #ifdef STIR_OPENMP
+  #  if _OPENMP >= 201012
+  #    pragma omp atomic write
+  #  else
+  #    pragma omp critical(STIRSCATTERESTIMATIONCACHE)
+          {
+  #  endif
+  #endif
+        *location_in_cache = result;
+  #if defined(STIR_OPENMP) && (_OPENMP < 201012)
+    }
+  #endif
+  return result;
   }
-#endif
-return result;
-}
 }
 
 float
@@ -130,45 +128,43 @@ ScatterSimulation::cached_exp_integral_over_attenuation_image_between_scattpoint
   float* location_in_cache = this->use_cache ? &cached_attenuation_integral_scattpoint_det[scatter_point_num][det_num] : 0;
 
   float value;
-  if (this->use_cache)
-    {
-#if defined(STIR_OPENMP)
-#  if _OPENMP >= 201012
-#    pragma omp atomic read
-#  else
-#    pragma omp critical(STIRSCATTERESTIMATIONREADCACHEATTENINT)
-      {
-#  endif
-#endif
-      value = *location_in_cache;
-#if defined(STIR_OPENMP) && (_OPENMP < 201012)
-    }
-#endif
-}
-
-if (this->use_cache && value != cache_init_value)
-  {
-    return *location_in_cache;
-  }
-else
-  {
-    const float result = exp_integral_over_attenuation_image_between_scattpoint_det(scatt_points_vector[scatter_point_num].coord,
-                                                                                    detection_points_vector[det_num]);
-    if (this->use_cache)
-#ifdef STIR_OPENMP
-#  if _OPENMP >= 201012
-#    pragma omp atomic write
-#  else
-#    pragma omp critical(STIRSCATTERESTIMATIONREADCACHEATTENINT)
+  #if defined(STIR_OPENMP)
+  #  if _OPENMP >= 201012
+  #    pragma omp atomic read
+  #  else
+  #    pragma omp critical(STIRSCATTERESTIMATIONREADCACHEATTENINT)
         {
-#  endif
-#endif
-      *location_in_cache = result;
-#if defined(STIR_OPENMP) && (_OPENMP < 201012)
+  #  endif
+  #endif
+        value = *location_in_cache;
+  #if defined(STIR_OPENMP) && (_OPENMP < 201012)
+      }
+  #endif
+
+  if (this->use_cache && value != cache_init_value)
+    {
+      return *location_in_cache;
+    }
+  else
+    {
+      const float result = exp_integral_over_attenuation_image_between_scattpoint_det(scatt_points_vector[scatter_point_num].physical_coord,
+                                                                                      get_template_proj_data_info_sptr()->get_physical_coordinates_for_gantry_coordinates(
+                                                                                        detection_points_in_gantry_coords_vector[det_num])););
+      if (this->use_cache)
+  #ifdef STIR_OPENMP
+  #  if _OPENMP >= 201012
+  #    pragma omp atomic write
+  #  else
+  #    pragma omp critical(STIRSCATTERESTIMATIONREADCACHEATTENINT)
+          {
+  #  endif
+  #endif
+        *location_in_cache = result;
+  #if defined(STIR_OPENMP) && (_OPENMP < 201012)
+    }
+  #endif
+        return result;
   }
-#endif
-return result;
-}
 }
 
 END_NAMESPACE_STIR
