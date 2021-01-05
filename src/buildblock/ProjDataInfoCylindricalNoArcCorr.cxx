@@ -363,7 +363,6 @@ ProjDataInfoCylindricalNoArcCorr::
 get_det_pair_for_gantry_coordinate_pair(int& det1, int& det2, int& ring1, int& ring2,
 					             const CartesianCoordinate3D<float>& c1,
 						     const CartesianCoordinate3D<float>& c2) const
-                 // ORIGINTODO
 {
   const int num_detectors = get_scanner_ptr()->get_num_detectors_per_ring();
   const float ring_spacing = get_scanner_ptr()->get_ring_spacing();
@@ -411,8 +410,8 @@ get_det_pair_for_gantry_coordinate_pair(int& det1, int& det2, int& ring1, int& r
   LORInCylinderCoordinates<float> cyl_in_ring_coords;
   if (find_LOR_intersections_with_cylinder(cyl_in_ring_coords,
         LORAs2Points<float>(
-          c1 - offset_gantry_coords_to_ring_coords,
-          c2 - offset_gantry_coords_to_ring_coords),
+          c1 + offset_gantry_coords_to_ring_coords,
+          c2 + offset_gantry_coords_to_ring_coords),
         ring_radius)
       == Succeeded::no)
     return Succeeded::no;
@@ -515,8 +514,9 @@ ProjDataInfoCylindricalNoArcCorr::get_det_pair_locations_in_gantry_coordinates(C
   LORAs2Points<float> lor(cyl_coords);
   CartesianCoordinate3D<float> offset_gantry_coords_to_ring_coords =
     get_vector_centre_of_first_ring_to_centre_of_gantry();
-  coord_1 = lor.p1() + offset_gantry_coords_to_ring_coords;
-  coord_2 = lor.p2() + offset_gantry_coords_to_ring_coords;
+  coord_1 = lor.p1() - offset_gantry_coords_to_ring_coords;
+  coord_2 = lor.p2() - offset_gantry_coords_to_ring_coords;
+  
 #endif
   if (tpos < 0)
     std::swap(coord_1, coord_2);
@@ -528,7 +528,6 @@ ProjDataInfoCylindricalNoArcCorr::
 get_bin_for_gantry_coordinate_pair(Bin& bin,
 						  const CartesianCoordinate3D<float>& coord_1,
 						  const CartesianCoordinate3D<float>& coord_2) const
-                 // ORIGINTODO
 {
   int det_num_a;
   int det_num_b;
