@@ -36,7 +36,7 @@
 START_NAMESPACE_STIR
 
 template <int num_dimensions, class coordT> class BasicCoordinate;
-class ViewSegmentNumbers;
+class ViewSegmentTOFNumbers;
 class ProjMatrixElemsForOneBin;
 class ProjMatrixElemsForOneDensel;
 class Bin;
@@ -75,7 +75,7 @@ public:
   virtual void 
     transform_bin_coordinates(Bin&) const = 0;
   virtual void 
-    transform_view_segment_indices(ViewSegmentNumbers&) const = 0;
+    transform_view_segment_indices(ViewSegmentTOFNumbers&) const = 0;
   virtual void
     transform_image_coordinates(BasicCoordinate<3,int>&) const = 0;
 #if 0
@@ -108,7 +108,7 @@ public:
   inline void 
     transform_bin_coordinates(Bin& b) const {}
   inline void 
-    transform_view_segment_indices(ViewSegmentNumbers& n) const {}
+    transform_view_segment_indices(ViewSegmentTOFNumbers& n) const {}
   inline void
     transform_image_coordinates(BasicCoordinate<3,int>& c) const {}
   inline void 

@@ -18,7 +18,7 @@
 #include "stir_experimental/recon_buildblock/BinNormalisationSinogramRescaling.h"
 #include "stir/shared_ptr.h"
 #include "stir/RelatedViewgrams.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/IndexRange.h"
 #include "stir/Bin.h"
 #include "stir/stream.h"

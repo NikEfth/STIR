@@ -49,7 +49,7 @@
 #include "stir/utilities.h"
 // for get_symmetries_ptr()
 #include "stir/DataSymmetriesForViewSegmentNumbers.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/info.h"
 
 #include "stir/modelling/ParametricDiscretisedDensity.h"

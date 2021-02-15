@@ -27,7 +27,7 @@
 */
 #include "stir/recon_buildblock/TrivialDataSymmetriesForBins.h"
 #include "stir/recon_buildblock/SymmetryOperation.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 
 using std::vector;
 
@@ -126,14 +126,14 @@ find_symmetry_operation_from_basic_bin(Bin&) const
 
 unique_ptr<SymmetryOperation>
 TrivialDataSymmetriesForBins::
-find_symmetry_operation_from_basic_view_segment_numbers(ViewSegmentNumbers& vs) const
+find_symmetry_operation_from_basic_view_segment_numbers(ViewSegmentTOFNumbers& vs) const
 {
   return unique_ptr<SymmetryOperation>(new TrivialSymmetryOperation);
 }
 
 void
 TrivialDataSymmetriesForBins::
-get_related_view_segment_numbers(vector<ViewSegmentNumbers>& all, const ViewSegmentNumbers& v_s) const
+get_related_view_segment_numbers(vector<ViewSegmentTOFNumbers>& all, const ViewSegmentTOFNumbers& v_s) const
 {
   all.resize(1);
   all[0] = v_s;
@@ -142,14 +142,14 @@ get_related_view_segment_numbers(vector<ViewSegmentNumbers>& all, const ViewSegm
 
 int
 TrivialDataSymmetriesForBins::
-num_related_view_segment_numbers(const ViewSegmentNumbers&) const
+num_related_view_segment_numbers(const ViewSegmentTOFNumbers&) const
 {
   return 1;
 }
 
 bool
 TrivialDataSymmetriesForBins::
-find_basic_view_segment_numbers(ViewSegmentNumbers&) const
+find_basic_view_segment_numbers(ViewSegmentTOFNumbers&) const
 {
   return false;
 }

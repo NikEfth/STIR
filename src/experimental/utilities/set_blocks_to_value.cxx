@@ -18,7 +18,7 @@
 #include "stir/ProjDataInfoCylindricalNoArcCorr.h"
 #include "stir/Bin.h"
 #include "stir/Viewgram.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/utilities.h"
 #include "stir/Succeeded.h"
 #include "stir/ProjDataInterfile.h"

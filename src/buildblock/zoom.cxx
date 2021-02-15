@@ -135,7 +135,7 @@ zoom_viewgrams (RelatedViewgrams<float>& in_viewgrams,
     out_viewgrams = 
     new_proj_data_info_arccorr_sptr->
       get_empty_related_viewgrams(in_viewgrams.get_basic_view_segment_num(),
-				  symmetries_sptr,false,in_viewgrams.get_basic_timing_pos_num());
+				  symmetries_sptr,false);
 
   {
     RelatedViewgrams<float>::iterator out_iter = out_viewgrams.begin();

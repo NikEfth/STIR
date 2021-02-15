@@ -50,7 +50,7 @@ template <typename elemT> class SegmentByView;
 template <typename elemT> class SegmentBySinogram;
 template <typename elemT> class RelatedViewgrams;
 class DataSymmetriesForViewSegmentNumbers;
-class ViewSegmentNumbers;
+class ViewSegmentTOFNumbers;
 class Bin;
 template <typename T> class LOR;
 template <typename T> class LORInAxialAndNoArcCorrSinogramCoordinates;
@@ -413,10 +413,9 @@ public:
 
 
   //! Get empty related viewgrams, where the symmetries_ptr specifies the symmetries to use
-  RelatedViewgrams<float> get_empty_related_viewgrams(const ViewSegmentNumbers&,
+  RelatedViewgrams<float> get_empty_related_viewgrams(const ViewSegmentTOFNumbers&,
     const shared_ptr<DataSymmetriesForViewSegmentNumbers>&,
-    const bool make_num_tangential_poss_odd = false,
-	const int timing_pos_num = 0) const;
+    const bool make_num_tangential_poss_odd = false) const;
   //@}
 
 

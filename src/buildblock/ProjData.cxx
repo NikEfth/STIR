@@ -59,7 +59,7 @@
 #include "stir/IO/GEHDF5Wrapper.h"
 #endif
 #include "stir/IO/stir_ecat7.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/is_null_ptr.h"
 #include <cstring>
 #include <fstream>
@@ -275,28 +275,27 @@ ProjData::get_empty_segment_by_view(const int segment_num,
 }
 
 RelatedViewgrams<float> 
-ProjData::get_empty_related_viewgrams(const ViewSegmentNumbers& view_segmnet_num,
+ProjData::get_empty_related_viewgrams(const ViewSegmentTOFNumbers& view_segmnet_num,
                    //const int view_num, const int segment_num,
 		   const shared_ptr<DataSymmetriesForViewSegmentNumbers>& symmetries_used,
-		   const bool make_num_tangential_poss_odd,
-		   const int timing_pos) const
+		   const bool make_num_tangential_poss_odd) const
 {
   return
-    proj_data_info_sptr->get_empty_related_viewgrams(view_segmnet_num, symmetries_used, make_num_tangential_poss_odd, timing_pos);
+          proj_data_info_sptr->get_empty_related_viewgrams(view_segmnet_num, symmetries_used,
+                                                           make_num_tangential_poss_odd);
 }
 
 
 RelatedViewgrams<float> 
-ProjData::get_related_viewgrams(const ViewSegmentNumbers& view_segment_num,
+ProjData::get_related_viewgrams(const ViewSegmentTOFNumbers& view_segment_num,
                    //const int view_num, const int segment_num,
 		   const shared_ptr<DataSymmetriesForViewSegmentNumbers>& symmetries_used,
-		   const bool make_num_bins_odd,
-		   const int timing_pos) const
+		   const bool make_num_bins_odd) const
 {
-  vector<ViewSegmentNumbers> pairs;
+  vector<ViewSegmentTOFNumbers> pairs;
   symmetries_used->get_related_view_segment_numbers(
     pairs, 
-    ViewSegmentNumbers(view_segment_num.view_num(),view_segment_num.segment_num())
+    ViewSegmentTOFNumbers(view_segment_num.view_num(),view_segment_num.segment_num(), view_segment_num.tof_pos_num())
     );
 
   vector<Viewgram<float> > viewgrams;
@@ -306,7 +305,7 @@ ProjData::get_related_viewgrams(const ViewSegmentNumbers& view_segment_num,
   {
     // TODO optimise to get shared proj_data_info_ptr
     viewgrams.push_back(get_viewgram(pairs[i].view_num(),
-                                          pairs[i].segment_num(), make_num_bins_odd,timing_pos));
+                                          pairs[i].segment_num(), make_num_bins_odd, pairs[i].tof_pos_num()));
   }
 
   return RelatedViewgrams<float>(viewgrams, symmetries_used);

@@ -47,7 +47,7 @@
 #include "stir/ProjData.h"
 #include "stir/ExamInfo.h"
 #include "stir/DiscretisedDensity.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/CPUTimer.h"
 #include "stir/HighResWallClockTimer.h"
 #include "stir/recon_buildblock/ForwardProjectorByBin.h"
@@ -173,7 +173,7 @@ void get_viewgrams(shared_ptr<RelatedViewgrams<float> >& y,
                    const double start_time_of_frame,
                    const double end_time_of_frame,
                    const shared_ptr<DataSymmetriesForViewSegmentNumbers>& symmetries_ptr,
-                   const ViewSegmentNumbers& view_segment_num,
+                   const ViewSegmentTOFNumbers& view_segment_num,
 				   const int timing_pos_num
                    )
 {
@@ -185,10 +185,10 @@ void get_viewgrams(shared_ptr<RelatedViewgrams<float> >& y,
 #if !defined(_MSC_VER) || _MSC_VER>1300
       additive_binwise_correction_viewgrams.reset(
         new RelatedViewgrams<float>
-        (binwise_correction->get_related_viewgrams(view_segment_num, symmetries_ptr, false, timing_pos_num)));
+        (binwise_correction->get_related_viewgrams(view_segment_num, symmetries_ptr, false)));
 #else
       RelatedViewgrams<float> tmp(binwise_correction->
-                                  get_related_viewgrams(view_segment_num, symmetries_ptr, false, timing_pos_num));
+                                  get_related_viewgrams(view_segment_num, symmetries_ptr, false, view_segment_num.tof_pos_num()));
       additive_binwise_correction_viewgrams.reset(new RelatedViewgrams<float>(tmp));
 #endif
     }
@@ -200,25 +200,25 @@ void get_viewgrams(shared_ptr<RelatedViewgrams<float> >& y,
 #endif
 #if !defined(_MSC_VER) || _MSC_VER>1300
       y.reset(new RelatedViewgrams<float>
-	      (proj_dat_ptr->get_related_viewgrams(view_segment_num, symmetries_ptr, false, timing_pos_num)));
+	      (proj_dat_ptr->get_related_viewgrams(view_segment_num, symmetries_ptr, false)));
 #else
       // workaround VC++ 6.0 bug
       RelatedViewgrams<float> tmp(proj_dat_ptr->
-                                  get_related_viewgrams(view_segment_num, symmetries_ptr, false, timing_pos_num));
+                                  get_related_viewgrams(view_segment_num, symmetries_ptr, false, view_segment_num.tof_pos_num()));
       y.reset(new RelatedViewgrams<float>(tmp));
 #endif        
     }
   else
     {
       y.reset(new RelatedViewgrams<float>
-	      (proj_dat_ptr->get_empty_related_viewgrams(view_segment_num, symmetries_ptr, false, timing_pos_num)));
+	      (proj_dat_ptr->get_empty_related_viewgrams(view_segment_num, symmetries_ptr, false)));
     }
 
   // multiplicative correction
   if (!is_null_ptr(normalisation_sptr) && !normalisation_sptr->is_trivial())
     {
       mult_viewgrams_sptr.reset(
-				new RelatedViewgrams<float>(proj_dat_ptr->get_empty_related_viewgrams(view_segment_num, symmetries_ptr, false, timing_pos_num)));
+				new RelatedViewgrams<float>(proj_dat_ptr->get_empty_related_viewgrams(view_segment_num, symmetries_ptr, false)));
       mult_viewgrams_sptr->fill(1.F);
 #ifdef STIR_OPENMP
 #pragma omp critical(MULT)
@@ -398,7 +398,7 @@ void distributable_computation(
   if (zero_seg0_end_planes)
     info("End-planes of segment 0 will be zeroed");
 
-  const std::vector<ViewSegmentNumbers> vs_nums_to_process = 
+  const std::vector<ViewSegmentTOFNumbers> vs_nums_to_process =
     detail::find_basic_vs_nums_in_subset(*proj_dat_ptr->get_proj_data_info_sptr(), *symmetries_ptr,
                                          min_segment_num, max_segment_num,
                                          subset_num, num_subsets);
@@ -435,12 +435,10 @@ void distributable_computation(
 #pragma omp for schedule(runtime)  
 #endif
 
-  for (int timing_pos_num = min_timing_pos_num; timing_pos_num <= max_timing_pos_num; ++timing_pos_num)
-  {
     // note: older versions of openmp need an int as loop
     for (int i=0; i<static_cast<int>(vs_nums_to_process.size()); ++i)
       {
-        const ViewSegmentNumbers view_segment_num=vs_nums_to_process[i];
+        const ViewSegmentTOFNumbers view_segment_num=vs_nums_to_process[i];
 
         shared_ptr<RelatedViewgrams<float> > y;
         shared_ptr<RelatedViewgrams<float> > additive_binwise_correction_viewgrams;
@@ -451,7 +449,7 @@ void distributable_computation(
                       zero_seg0_end_planes,
                       binwise_correction,
                       normalisation_sptr, start_time_of_frame, end_time_of_frame,
-                      symmetries_ptr, view_segment_num, timing_pos_num);
+                      symmetries_ptr, view_segment_num, view_segment_num.tof_pos_num());
 #ifdef STIR_MPI     
 
           //send viewgrams, the slave will immediatelly start calculation
@@ -481,10 +479,10 @@ void distributable_computation(
           const int thread_num=omp_get_thread_num();
           info(boost::format("Thread %d/%d calculating segment_num: %d, view_num: %d, timing_pos_num: %d")
                % thread_num % omp_get_num_threads()
-               % view_segment_num.segment_num() % view_segment_num.view_num() % timing_pos_num, 2);
+               % view_segment_num.segment_num() % view_segment_num.view_num() % view_segment_num.tof_pos_num(), 2);
 #else
           info(boost::format("calculating segment_num: %d, view_num: %d, timing_pos_num: %d")
-               % view_segment_num.segment_num() % view_segment_num.view_num() % timing_pos_num,2);
+               % view_segment_num.segment_num() % view_segment_num.view_num() % view_segment_num.tof_pos_num(),2);
 #endif
 
 #ifdef STIR_OPENMP
@@ -505,7 +503,6 @@ void distributable_computation(
 #endif // OPENMP                                    
 #endif // MPI
         } // end of for-loop
-      } // end of for-loop over timing_pos_num
   } // end of parallel section of openmp
   
 #ifdef STIR_OPENMP

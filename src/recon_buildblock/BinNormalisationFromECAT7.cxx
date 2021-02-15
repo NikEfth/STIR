@@ -43,7 +43,7 @@
 #include "stir/IO/stir_ecat7.h"
 #include "stir/shared_ptr.h"
 #include "stir/RelatedViewgrams.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/IndexRange2D.h"
 #include "stir/IndexRange.h"
 #include "stir/Bin.h"

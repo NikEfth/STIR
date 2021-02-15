@@ -34,7 +34,7 @@
 
 #include "stir/recon_buildblock/DataSymmetriesForBins.h"
 //#include "stir/SymmetryOperations_PET_CartesianGrid.h"
-//#include "stir/ViewSegmentNumbers.h"
+//#include "stir/ViewSegmentTOFNumbers.h"
 //#include "stir/VoxelsOnCartesianGrid.h"
 #include "stir/Bin.h"
 #include "stir/shared_ptr.h"
@@ -130,13 +130,13 @@ public:
     find_basic_bin(Bin& b) const;
   
   inline int
-    num_related_view_segment_numbers(const ViewSegmentNumbers& vs) const;
+    num_related_view_segment_numbers(const ViewSegmentTOFNumbers& vs) const;
   
   inline void
-    get_related_view_segment_numbers(std::vector<ViewSegmentNumbers>& rel_vs, const ViewSegmentNumbers& vs) const;
+    get_related_view_segment_numbers(std::vector<ViewSegmentTOFNumbers>& rel_vs, const ViewSegmentTOFNumbers& vs) const;
   
   inline bool
-    find_basic_view_segment_numbers(ViewSegmentNumbers& v_s) const;
+    find_basic_view_segment_numbers(ViewSegmentTOFNumbers& v_s) const;
 
   //! find out how many image planes there are for every scanner ring
   inline float get_num_planes_per_scanner_ring() const;

@@ -674,7 +674,7 @@ void FBP3DRPReconstruction::do_3D_Reconstruction(
     const int orig_max_axial_pos_num = proj_data_ptr->get_max_axial_pos_num(seg_num);
             
     for (int view_num=proj_data_ptr->get_min_view_num(); view_num <= proj_data_ptr->get_max_view_num(); ++view_num) {         
-      const ViewSegmentNumbers vs_num(view_num, seg_num);
+      const ViewSegmentTOFNumbers vs_num(view_num, seg_num);
       if (!symmetries_sptr->is_basic(vs_num))
 	continue;
 
@@ -702,7 +702,7 @@ void FBP3DRPReconstruction::do_3D_Reconstruction(
       full_log << "\n  - Getting related viewgrams"  << endl;
  
       RelatedViewgrams<float> viewgrams = 
-	proj_data_ptr->get_related_viewgrams(vs_num, symmetries_sptr);
+	proj_data_ptr->get_related_viewgrams(vs_num, symmetries_sptr, 0);
         
       do_process_viewgrams(
 			   viewgrams,

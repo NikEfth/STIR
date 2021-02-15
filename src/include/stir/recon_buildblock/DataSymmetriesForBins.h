@@ -54,7 +54,7 @@ class BinIndexRange;
 
 /*! 
   \brief AxTangPosNumbers as a class that provides the 2 remaining
-  coordinates for a Bin, aside from ViewSegmentNumbers.
+  coordinates for a Bin, aside from ViewSegmentTOFNumbers.
 
   TODO? something more sofisticated than a typedef
 */
@@ -131,7 +131,7 @@ public:
  //! fills in a vector with the axial and tangential position numbers related to this bin
   /*!
      It is guaranteed (or at least, it should be by the implementation of the derived class)
-     that these AxTangPosNumbers are related for all related ViewSegmentNumbers
+     that these AxTangPosNumbers are related for all related ViewSegmentTOFNumbers
      for this bin.
 
      So, you can find all related bins by calling get_related_ViewSegmentNumbers()
@@ -174,7 +174,7 @@ public:
 
   //! default implementation in terms of find_symmetry_operation_from_basic_bin
   virtual unique_ptr<SymmetryOperation>
-    find_symmetry_operation_from_basic_view_segment_numbers(ViewSegmentNumbers&) const;
+    find_symmetry_operation_from_basic_view_segment_numbers(ViewSegmentTOFNumbers&) const;
 
 
 protected:

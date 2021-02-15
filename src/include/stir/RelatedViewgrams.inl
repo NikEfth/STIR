@@ -28,7 +28,7 @@
 
     See STIR/LICENSE.txt for details
 */
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 
 START_NAMESPACE_STIR
 
@@ -87,10 +87,10 @@ int RelatedViewgrams<elemT>::get_basic_timing_pos_num() const
 }
 
 template <typename elemT>
-ViewSegmentNumbers RelatedViewgrams<elemT>::
+ViewSegmentTOFNumbers RelatedViewgrams<elemT>::
 get_basic_view_segment_num() const
 {
-  return ViewSegmentNumbers(get_basic_view_num(), get_basic_segment_num());
+  return ViewSegmentTOFNumbers(get_basic_view_num(), get_basic_segment_num(), get_basic_timing_pos_num());
 }
 
 template <typename elemT>

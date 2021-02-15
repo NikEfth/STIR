@@ -304,7 +304,7 @@ actual_reconstruct(shared_ptr<DiscretisedDensity<3,float> > const & density_ptr)
 #endif
     for (int view_num=proj_data_ptr->get_min_view_num(); view_num <= proj_data_ptr->get_max_view_num(); ++view_num) 
       {         
-        const ViewSegmentNumbers vs_num(view_num, 0);
+        const ViewSegmentTOFNumbers vs_num(view_num, 0);
     
 #ifndef NDEBUG
 #ifdef STIR_OPENMP
@@ -321,7 +321,7 @@ actual_reconstruct(shared_ptr<DiscretisedDensity<3,float> > const & density_ptr)
 #endif
         {
           viewgrams =
-            proj_data_ptr->get_related_viewgrams(vs_num, symmetries_sptr);   
+            proj_data_ptr->get_related_viewgrams(vs_num, symmetries_sptr, 0);
         }
 
         if (do_arc_correction)

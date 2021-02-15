@@ -512,7 +512,7 @@ actual_subsets_are_approximately_balanced(std::string& warning_message) const
 			 view_num <= this->proj_data_sptr->get_max_view_num();
 			 view_num += this->num_subsets)
 		  {
-			const ViewSegmentNumbers view_segment_num(view_num, segment_num);
+			const ViewSegmentTOFNumbers view_segment_num(view_num, segment_num);
 			if (!symmetries.is_basic(view_segment_num))
 			  continue;
 			num_vs_in_subset[subset_num] +=
@@ -797,7 +797,7 @@ add_subset_sensitivity(TargetT& sensitivity, const int subset_num) const
         view <= this->proj_data_sptr->get_max_view_num(); 
         view += this->num_subsets)
     {
-      const ViewSegmentNumbers view_segment_num(view, segment_num);
+      const ViewSegmentTOFNumbers view_segment_num(view, segment_num);
         
       if (!symmetries_sptr->is_basic(view_segment_num))
         continue;
@@ -812,7 +812,7 @@ add_subset_sensitivity(TargetT& sensitivity, const int subset_num) const
 template<typename TargetT>
 void
 PoissonLogLikelihoodWithLinearModelForMeanAndProjData<TargetT>::
-add_view_seg_to_sensitivity(TargetT& sensitivity, const ViewSegmentNumbers& view_seg_nums) const
+add_view_seg_to_sensitivity(TargetT& sensitivity, const ViewSegmentTOFNumbers& view_seg_nums) const
 {
 	int min_timing_pos_num = use_tofsens ? -this->max_timing_pos_num_to_process : 0;
 	int max_timing_pos_num = use_tofsens ? this->max_timing_pos_num_to_process : 0;
@@ -895,7 +895,7 @@ actual_add_multiplication_with_approximate_sub_Hessian_without_penalty(TargetT& 
   this->get_projector_pair().get_forward_projector_sptr()->set_input(input);
   this->get_projector_pair().get_back_projector_sptr()->start_accumulating_in_new_target();
 
-  const std::vector<ViewSegmentNumbers> vs_nums_to_process =
+  const std::vector<ViewSegmentTOFNumbers> vs_nums_to_process =
     detail::find_basic_vs_nums_in_subset(* this->get_proj_data().get_proj_data_info_sptr(),
 					 *symmetries_sptr,
 					 -this->get_max_segment_num_to_process(),
@@ -918,7 +918,7 @@ actual_add_multiplication_with_approximate_sub_Hessian_without_penalty(TargetT& 
           info(boost::format("calculating segment_num: %d, view_num: %d")
                % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
 #endif
-          const ViewSegmentNumbers view_segment_num=vs_nums_to_process[i];
+          const ViewSegmentTOFNumbers view_segment_num=vs_nums_to_process[i];
 
 			  // first compute data-term: y*norm^2
 			  RelatedViewgrams<float> viewgrams =
@@ -932,7 +932,7 @@ actual_add_multiplication_with_approximate_sub_Hessian_without_penalty(TargetT& 
           RelatedViewgrams<float> tmp_viewgrams;
           // set tmp_viewgrams to geometric forward projection of input
           {
-            tmp_viewgrams = this->get_proj_data().get_empty_related_viewgrams(view_segment_num, symmetries_sptr);
+            tmp_viewgrams = this->get_proj_data().get_empty_related_viewgrams(view_segment_num, symmetries_sptr, 0);
             this->get_projector_pair().get_forward_projector_sptr()->
               forward_project(tmp_viewgrams);
           }
@@ -1005,7 +1005,7 @@ actual_accumulate_sub_Hessian_times_input_without_penalty(TargetT& output,
   this->get_projector_pair().get_forward_projector_sptr()->set_input(input);
   this->get_projector_pair().get_back_projector_sptr()->start_accumulating_in_new_target();
 
-  const std::vector<ViewSegmentNumbers> vs_nums_to_process =
+  const std::vector<ViewSegmentTOFNumbers> vs_nums_to_process =
           detail::find_basic_vs_nums_in_subset(* this->get_proj_data().get_proj_data_info_sptr(),
                                                *symmetries_sptr,
                                                -this->get_max_segment_num_to_process(),
@@ -1021,8 +1021,8 @@ actual_accumulate_sub_Hessian_times_input_without_penalty(TargetT& output,
   std::vector<RelatedViewgrams<float>> input_viewgrams_vec;
   for (int i=0; i<static_cast<int>(vs_nums_to_process.size()); ++i)
   {
-    const ViewSegmentNumbers view_segment_num = vs_nums_to_process[i];
-    input_viewgrams_vec.push_back(this->get_proj_data().get_empty_related_viewgrams(view_segment_num, symmetries_sptr));
+    const ViewSegmentTOFNumbers view_segment_num = vs_nums_to_process[i];
+    input_viewgrams_vec.push_back(this->get_proj_data().get_empty_related_viewgrams(view_segment_num, symmetries_sptr,0));
   }
 
 
@@ -1042,7 +1042,7 @@ actual_accumulate_sub_Hessian_times_input_without_penalty(TargetT& output,
     info(boost::format("calculating segment_num: %d, view_num: %d")
          % vs_nums_to_process[i].segment_num() % vs_nums_to_process[i].view_num(), 2);
 #endif
-    input_viewgrams_vec[i] = this->get_proj_data().get_empty_related_viewgrams(vs_nums_to_process[i], symmetries_sptr);
+    input_viewgrams_vec[i] = this->get_proj_data().get_empty_related_viewgrams(vs_nums_to_process[i], symmetries_sptr,0);
     this->get_projector_pair().get_forward_projector_sptr()->forward_project(input_viewgrams_vec[i]);
   }
 
@@ -1067,19 +1067,20 @@ actual_accumulate_sub_Hessian_times_input_without_penalty(TargetT& output,
     // Compute ybar_sq_viewgram = [ F(current_image_est) + additive ]^2
     RelatedViewgrams<float> ybar_sq_viewgram;
     {
-      ybar_sq_viewgram = this->get_proj_data().get_empty_related_viewgrams(vs_nums_to_process[i], symmetries_sptr);
+      ybar_sq_viewgram = this->get_proj_data().get_empty_related_viewgrams(vs_nums_to_process[i], symmetries_sptr, 0);
       this->get_projector_pair().get_forward_projector_sptr()->forward_project(ybar_sq_viewgram);
 
       //add additive sinogram to forward projection
       if (!(is_null_ptr(this->get_additive_proj_data_sptr())))
-        ybar_sq_viewgram += this->get_additive_proj_data().get_related_viewgrams(vs_nums_to_process[i], symmetries_sptr);
+        ybar_sq_viewgram += this->get_additive_proj_data().get_related_viewgrams(vs_nums_to_process[i], symmetries_sptr,0);
       // square ybar
       ybar_sq_viewgram *= ybar_sq_viewgram;
     }
 
     // Compute: final_viewgram * F(input) / ybar_sq_viewgram
     // final_viewgram starts as measured data
-    RelatedViewgrams<float> final_viewgram = this->get_proj_data().get_related_viewgrams(vs_nums_to_process[i], symmetries_sptr);
+    RelatedViewgrams<float> final_viewgram = this->get_proj_data().get_related_viewgrams(vs_nums_to_process[i],
+                                                                                         symmetries_sptr, 0);
     {
       // Mult input_viewgram
       final_viewgram *= input_viewgrams_vec[i];

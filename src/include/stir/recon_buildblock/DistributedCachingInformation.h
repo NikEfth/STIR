@@ -30,7 +30,7 @@
 
 */
 
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include <vector>
 #include <algorithm>
 
@@ -84,7 +84,7 @@ public:
   /*! \brief to be called at the beginning of the processing of a set of data
    * The caching data is kept, such that the cache will be re-used over multiple runs.
    */ 
-  void initialise_new_subiteration(const std::vector<ViewSegmentNumbers>& vs_nums_to_process);
+  void initialise_new_subiteration(const std::vector<ViewSegmentTOFNumbers>& vs_nums_to_process);
 	
   /*! \brief get the next work-package for a given processor
    * \warning this must only be called if there for sure is an unprocessed vs_num left, 
@@ -95,7 +95,7 @@ public:
    * This function updates internal cache values etc. The user can just repeatedly call
    * the function without worrying about the caching algorithm.
    */ 
-  bool get_unprocessed_vs_num(ViewSegmentNumbers& vs_num, int proc);
+  bool get_unprocessed_vs_num(ViewSegmentTOFNumbers& vs_num, int proc);
 	
 private:
 
@@ -103,17 +103,17 @@ private:
   int num_workers;
 
   //! stores which data that have to be processed in this subiteration
-  std::vector<ViewSegmentNumbers> vs_nums_to_process;	
+  std::vector<ViewSegmentTOFNumbers> vs_nums_to_process;
 
   //!stores the vs_nums in the cache of every processor
-  std::vector<std::vector<ViewSegmentNumbers> > proc_vs_nums;
+  std::vector<std::vector<ViewSegmentTOFNumbers> > proc_vs_nums;
 	
   //! marks the vs_num that still need to be processed
   /*! Has the same length as vs_nums_to_process */
   std::vector<bool> still_to_process;
 
   //! \brief find where \a vs_num is in vs_nums_to_process
-  int find_vs_num_position_in_list_to_process(const ViewSegmentNumbers& vs_num) const;
+  int find_vs_num_position_in_list_to_process(const ViewSegmentTOFNumbers& vs_num) const;
 
   //! \brief find the first vs_num which has not be processed at all
   int find_position_of_first_unprocessed() const;
@@ -126,7 +126,7 @@ private:
    * \param vs_num the vs_number to be saved to the processors list of cached numbers
    * Calls set_processed() to make sure we do not process it again.
    */
-  void add_vs_num_to_proc(int proc, const ViewSegmentNumbers& vs_num);
+  void add_vs_num_to_proc(int proc, const ViewSegmentTOFNumbers& vs_num);
 
   /*! \brief gets the vs_num which is (most likely) the oldest in cache of the specific processor
    * \param[out] vs_num will be set accordingly
@@ -134,7 +134,7 @@ private:
    * \return \c true if there was an unprocessed data-set in the cache of processor \a proc
    * This is called by get_unprocessed_vs_num
    */
-  bool get_oldest_unprocessed_vs_num(ViewSegmentNumbers& vs_num, int proc) const;
+  bool get_oldest_unprocessed_vs_num(ViewSegmentTOFNumbers& vs_num, int proc) const;
 
 	
   /*! \brief gets a vs_num of the processor, which has the most work left
@@ -146,12 +146,12 @@ private:
    * encourages load balancing without having a lot of extra communicatrions.
    * That way the probability of requesting already cached work is kept high.  
    */
-  ViewSegmentNumbers get_vs_num_of_proc_with_most_work_left(int proc) const;
+  ViewSegmentTOFNumbers get_vs_num_of_proc_with_most_work_left(int proc) const;
 		
-  /*! \brief set a ViewSegmentNumbers as already processed
+  /*! \brief set a ViewSegmentTOFNumbers as already processed
    * \param vs_num the vs_num to be set processed
    */
-  void set_processed(const ViewSegmentNumbers& vs_num);
+  void set_processed(const ViewSegmentTOFNumbers& vs_num);
 	
   /*! \brief reset all data to unprocessed
    */
@@ -161,7 +161,7 @@ private:
    * \param vs_num the view segment number to be checked
    * Also returns false if the \a vs_num is not in the list to process at all.
    */
-  bool is_still_to_be_processed(const ViewSegmentNumbers& vs_num) const;
+  bool is_still_to_be_processed(const ViewSegmentTOFNumbers& vs_num) const;
 
 };
 

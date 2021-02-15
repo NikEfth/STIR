@@ -303,7 +303,7 @@ find_sym_op_general_bin(
 
 bool  
 DataSymmetriesForBins_PET_CartesianGrid::
-find_basic_view_segment_numbers(ViewSegmentNumbers& v_s) const 
+find_basic_view_segment_numbers(ViewSegmentTOFNumbers& v_s) const
 {
    bool change=false;
  // TODO get rid of next 2 restrictions
@@ -341,7 +341,7 @@ bool
 DataSymmetriesForBins_PET_CartesianGrid::
 find_basic_bin(int &segment_num, int &view_num, int &axial_pos_num, int &tangential_pos_num) const 
 {
-  ViewSegmentNumbers v_s(view_num, segment_num);
+  ViewSegmentTOFNumbers v_s(view_num, segment_num);
 
   bool change=find_basic_view_segment_numbers(v_s);
 
@@ -381,7 +381,7 @@ DataSymmetriesForBins_PET_CartesianGrid::
 
 int
 DataSymmetriesForBins_PET_CartesianGrid::
-num_related_view_segment_numbers(const ViewSegmentNumbers& vs) const
+num_related_view_segment_numbers(const ViewSegmentTOFNumbers& vs) const
 {      
   int num = do_symmetry_180degrees_min_phi  && (vs.view_num() % (num_views/2)) != 0 ? 2 : 1;
   if (do_symmetry_90degrees_min_phi && (vs.view_num() % (num_views/2)) != num_views/4)
@@ -432,11 +432,11 @@ get_related_bins_factorised(std::vector<AxTangPosNumbers>& ax_tang_poss, const B
     
 void
 DataSymmetriesForBins_PET_CartesianGrid::
-get_related_view_segment_numbers(std::vector<ViewSegmentNumbers>& rel_vs, const ViewSegmentNumbers& vs) const
+get_related_view_segment_numbers(std::vector<ViewSegmentTOFNumbers>& rel_vs, const ViewSegmentTOFNumbers& vs) const
 {
 #ifndef NDEBUG
   {
-    ViewSegmentNumbers vstest=vs;
+    ViewSegmentTOFNumbers vstest=vs;
     assert(find_basic_view_segment_numbers(vstest)==false);
   }
 #endif
@@ -450,10 +450,10 @@ get_related_view_segment_numbers(std::vector<ViewSegmentNumbers>& rel_vs, const 
   rel_vs.reserve(num_related_view_segment_numbers(vs));
   rel_vs.resize(0);
 
-  rel_vs.push_back(ViewSegmentNumbers(view_num,segment_num));
+  rel_vs.push_back(ViewSegmentTOFNumbers(view_num,segment_num));
 
   if (symz)
-    rel_vs.push_back(ViewSegmentNumbers(view_num,-segment_num));
+    rel_vs.push_back(ViewSegmentTOFNumbers(view_num,-segment_num));
 
   if (do_symmetry_180degrees_min_phi && do_symmetry_90degrees_min_phi && (view_num % (num_views/2)) != num_views/4)
   {
@@ -461,16 +461,16 @@ get_related_view_segment_numbers(std::vector<ViewSegmentNumbers>& rel_vs, const 
       view_num < num_views/2 ?
       view_num + num_views/2 :
       view_num - num_views/2;
-    rel_vs.push_back(ViewSegmentNumbers( related_view_num,segment_num));
+    rel_vs.push_back(ViewSegmentTOFNumbers( related_view_num,segment_num));
     if (symz)
-      rel_vs.push_back(ViewSegmentNumbers( related_view_num,-segment_num));
+      rel_vs.push_back(ViewSegmentTOFNumbers( related_view_num,-segment_num));
   }
 
   if (do_symmetry_180degrees_min_phi && (view_num % (num_views/2)) != 0)
   {
-    rel_vs.push_back(ViewSegmentNumbers( num_views - view_num,segment_num));
+    rel_vs.push_back(ViewSegmentTOFNumbers( num_views - view_num,segment_num));
     if (symz)
-      rel_vs.push_back(ViewSegmentNumbers( num_views - view_num,-segment_num));
+      rel_vs.push_back(ViewSegmentTOFNumbers( num_views - view_num,-segment_num));
   }
   if (do_symmetry_90degrees_min_phi && (view_num % (num_views/4)) != 0)
   {
@@ -478,9 +478,9 @@ get_related_view_segment_numbers(std::vector<ViewSegmentNumbers>& rel_vs, const 
     // use modulo num_views (but add num_views first to ensure positivity)
     const int related_view_num = 
       (num_views/2 - view_num + num_views) % num_views;
-    rel_vs.push_back(ViewSegmentNumbers( related_view_num,segment_num));
+    rel_vs.push_back(ViewSegmentTOFNumbers( related_view_num,segment_num));
     if (symz)
-      rel_vs.push_back(ViewSegmentNumbers( related_view_num,-segment_num));
+      rel_vs.push_back(ViewSegmentTOFNumbers( related_view_num,-segment_num));
   }
 
 

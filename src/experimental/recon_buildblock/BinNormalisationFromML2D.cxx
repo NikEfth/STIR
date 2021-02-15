@@ -27,7 +27,7 @@
 
 #include "stir_experimental/recon_buildblock/BinNormalisationFromML2D.h"
 #include "stir/RelatedViewgrams.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/Succeeded.h"
 #include "stir/ProjDataInfoCylindricalNoArcCorr.h"
 #include "stir_experimental/ML_norm.h"

@@ -97,7 +97,7 @@ public:
   inline int get_basic_timing_pos_num() const;
   //! get 'basic' view_segment_num
   /*! see DataSymmetriesForViewSegmentNumbers for definition of 'basic' */
-  inline ViewSegmentNumbers get_basic_view_segment_num() const;
+  inline ViewSegmentTOFNumbers get_basic_view_segment_num() const;
 
   //! returns the number of viewgrams in this object
   inline int get_num_viewgrams() const;

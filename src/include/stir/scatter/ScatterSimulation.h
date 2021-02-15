@@ -234,7 +234,7 @@ protected:
     //! computes scatter for one viewgram
     /*! \return total scatter estimated for this viewgram */
     virtual double
-    process_data_for_view_segment_num(const ViewSegmentNumbers& vs_num);
+    process_data_for_view_segment_num(const ViewSegmentTOFNumbers& vs_num);
 
     float
     compute_emis_to_det_points_solid_angle_factor(const CartesianCoordinate3D<float>& emis_point,

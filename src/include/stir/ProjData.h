@@ -52,7 +52,7 @@ template <typename elemT> class SegmentBySinogram;
 template <typename elemT> class SegmentByView;
 template <typename elemT> class Viewgram;
 template <typename elemT> class Sinogram;
-class ViewSegmentNumbers;
+class ViewSegmentTOFNumbers;
 class Succeeded;
 //class ExamInfo;
 
@@ -182,10 +182,9 @@ public:
 
   //! Get related viewgrams
   virtual RelatedViewgrams<float> 
-    get_related_viewgrams(const ViewSegmentNumbers&,
+    get_related_viewgrams(const ViewSegmentTOFNumbers&,
     const shared_ptr<DataSymmetriesForViewSegmentNumbers>&,
-    const bool make_num_tangential_poss_odd = false,
-	const int timing_pos = 0) const;
+    const bool make_num_tangential_poss_odd = false) const;
   //! Set related viewgrams
   virtual Succeeded set_related_viewgrams(const RelatedViewgrams<float>& viewgrams);
 //  //! Get related bin values
@@ -194,11 +193,10 @@ public:
 
   //! Get empty related viewgrams, where the symmetries_ptr specifies the symmetries to use
   RelatedViewgrams<float> 
-    get_empty_related_viewgrams(const ViewSegmentNumbers& view_segmnet_num,
+    get_empty_related_viewgrams(const ViewSegmentTOFNumbers& view_segmnet_num,
     //const int view_num, const int segment_num, 
     const shared_ptr<DataSymmetriesForViewSegmentNumbers>& symmetries_ptr,
-    const bool make_num_tangential_poss_odd = false,
-	const int timing_pos = 0) const;
+    const bool make_num_tangential_poss_odd = false) const;
 
 
   //! set all bins to the same value

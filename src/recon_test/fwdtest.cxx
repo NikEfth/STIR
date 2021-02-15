@@ -239,7 +239,7 @@ main(int argc, char *argv[])
       write_to_file("test_image", *image_sptr);
   }
     
-  std::list<ViewSegmentNumbers> already_processed;
+  std::list<ViewSegmentTOFNumbers> already_processed;
 
   if (ask("Do full forward projection ?", true))
   {    
@@ -348,14 +348,14 @@ do_segments(const VoxelsOnCartesianGrid<float>& image,
 	shared_ptr<DataSymmetriesForViewSegmentNumbers>
 		symmetries_sptr(forw_projector.get_symmetries_used()->clone());
 
-	std::list<ViewSegmentNumbers> already_processed;
+	std::list<ViewSegmentTOFNumbers> already_processed;
 	for (int timing_pos_num = start_timing_pos_num; timing_pos_num <= end_timing_pos_num; ++timing_pos_num)
 	{
 		already_processed.clear();
 		for (int segment_num = start_segment_num; segment_num <= end_segment_num; ++segment_num)
 			for (int view = start_view; view <= end_view; view++)
 			{
-				ViewSegmentNumbers vs(view, segment_num);
+				ViewSegmentTOFNumbers vs(view, segment_num);
 				symmetries_sptr->find_basic_view_segment_numbers(vs);
 				if (find(already_processed.begin(), already_processed.end(), vs)
 					!= already_processed.end())
@@ -369,7 +369,7 @@ do_segments(const VoxelsOnCartesianGrid<float>& image,
 					<< endl;
 
 				RelatedViewgrams<float> viewgrams =
-					proj_data.get_empty_related_viewgrams(vs, symmetries_sptr, false,timing_pos_num);
+					proj_data.get_empty_related_viewgrams(vs, symmetries_sptr, false);
                 forw_projector.forward_project(viewgrams,
 					viewgrams.get_min_axial_pos_num(),
 					viewgrams.get_max_axial_pos_num(),

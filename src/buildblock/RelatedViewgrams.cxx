@@ -53,10 +53,10 @@ void RelatedViewgrams<elemT>::debug_check_state() const
   if (viewgrams.size() == 0)
     return;
 
-  vector<ViewSegmentNumbers> pairs;
+  vector<ViewSegmentTOFNumbers> pairs;
   symmetries_used->get_related_view_segment_numbers(
     pairs, 
-    ViewSegmentNumbers(
+    ViewSegmentTOFNumbers(
        viewgrams[0].get_view_num(),
        viewgrams[0].get_segment_num()
 	) );

@@ -41,7 +41,7 @@
 #include "stir/SegmentBySinogram.h"
 #include "stir/SegmentByView.h"
 #include "stir/RelatedViewgrams.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/Coordinate2D.h"
 #include "stir/Coordinate3D.h"
 #include "stir/IndexRange2D.h"
@@ -440,16 +440,15 @@ ProjDataInfo::get_empty_segment_by_view(const int segment_num,
 }
 
 RelatedViewgrams<float> 
-ProjDataInfo::get_empty_related_viewgrams(const ViewSegmentNumbers& view_segment_num,
+ProjDataInfo::get_empty_related_viewgrams(const ViewSegmentTOFNumbers& view_segment_num,
                    //const int view_num, const int segment_num,
 		   const shared_ptr<DataSymmetriesForViewSegmentNumbers>& symmetries_used,
-		   const bool make_num_tangential_poss_odd,
-		   const int timing_pos_num) const
+		   const bool make_num_tangential_poss_odd) const
 {
-  vector<ViewSegmentNumbers> pairs;
+  vector<ViewSegmentTOFNumbers> pairs;
   symmetries_used->get_related_view_segment_numbers(
                                                     pairs, 
-                                                    ViewSegmentNumbers(view_segment_num.view_num(),view_segment_num.segment_num())
+                                                    ViewSegmentTOFNumbers(view_segment_num.view_num(),view_segment_num.segment_num())
     );
 
   vector<Viewgram<float> > viewgrams;
@@ -461,7 +460,7 @@ ProjDataInfo::get_empty_related_viewgrams(const ViewSegmentNumbers& view_segment
     viewgrams.push_back(get_empty_viewgram(pairs[i].view_num(),
                                           pairs[i].segment_num(),
 										  make_num_tangential_poss_odd,
-										  timing_pos_num));
+										  pairs[i].tof_pos_num()));
   }
 
   return RelatedViewgrams<float>(viewgrams, symmetries_used);

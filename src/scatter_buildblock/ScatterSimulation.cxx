@@ -26,7 +26,7 @@
   \author Kris Thielemans
 */
 #include "stir/scatter/ScatterSimulation.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/Bin.h"
 #include "stir/CPUTimer.h"
 #include "stir/HighResWallClockTimer.h"
@@ -87,7 +87,7 @@ process_data()
     info("ScatterSimulator: Running Scatter Simulation ...");
     info("ScatterSimulator: Initialising ...");
 
-    ViewSegmentNumbers vs_num;
+    ViewSegmentTOFNumbers vs_num;
     /* ////////////////// SCATTER ESTIMATION TIME //////////////// */
     CPUTimer bin_timer;
     bin_timer.start();
@@ -158,7 +158,7 @@ process_data()
 
 double
 ScatterSimulation::
-process_data_for_view_segment_num(const ViewSegmentNumbers& vs_num)
+process_data_for_view_segment_num(const ViewSegmentTOFNumbers& vs_num)
 {
     // First construct a vector of all bins that we'll process.
     // The reason for making this list before the actual calculation is that we can then parallelise over all bins

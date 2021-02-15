@@ -36,7 +36,7 @@ START_NAMESPACE_STIR
 
 /*!
   \brief A class for encoding/finding NO symmetries. Works only on
-  ViewSegmentNumbers (instead of Bin).
+  ViewSegmentTOFNumbers (instead of Bin).
 
   This class is mainly useful if you need a DataSymmetriesForViewSegmentNumbers
   object (e.g. for RelatedViewgrams), but do not need/have projectors.
@@ -57,10 +57,10 @@ public:
 #endif
 
   virtual inline void
-    get_related_view_segment_numbers(std::vector<ViewSegmentNumbers>&, const ViewSegmentNumbers& v_s) const;
+    get_related_view_segment_numbers(std::vector<ViewSegmentTOFNumbers>&, const ViewSegmentTOFNumbers& v_s) const;
 
   virtual inline int
-    num_related_view_segment_numbers(const ViewSegmentNumbers& v_s) const;
+    num_related_view_segment_numbers(const ViewSegmentTOFNumbers& v_s) const;
 
   /*! \brief given an arbitrary view/segment, find the basic view/segment
   
@@ -68,7 +68,7 @@ public:
   'v_s' is changed (i.e. it was NOT a basic view/segment).
   */  
   virtual inline bool
-    find_basic_view_segment_numbers(ViewSegmentNumbers& v_s) const;
+    find_basic_view_segment_numbers(ViewSegmentTOFNumbers& v_s) const;
 
 private:
   virtual bool blindly_equals(const root_type * const) const;

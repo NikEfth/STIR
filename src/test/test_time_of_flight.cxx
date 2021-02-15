@@ -27,7 +27,7 @@
 #include "stir/DiscretisedDensity.h"
 #include "stir/VoxelsOnCartesianGrid.h"
 #include "stir/recon_buildblock/ProjMatrixElemsForOneBin.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/RelatedViewgrams.h"
 //#include "stir/geometry/line_distances.h"
 #include "stir/Succeeded.h"

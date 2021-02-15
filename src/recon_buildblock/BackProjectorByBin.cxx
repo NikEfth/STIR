@@ -173,7 +173,7 @@ back_project(DiscretisedDensity<3,float>& density,
      iter != viewgrams.end();
      ++iter)
       {
-    ViewSegmentNumbers vs(iter->get_view_num(), iter->get_segment_num());
+    ViewSegmentTOFNumbers vs(iter->get_view_num(), iter->get_segment_num());
     get_symmetries_used()->find_basic_view_segment_numbers(vs);
     if (vs != basic_vs)
       error("BackProjectorByBin::back_project called with incorrect related_viewgrams. Problem with symmetries!\n");
@@ -202,7 +202,7 @@ BackProjectorByBin::back_project(const ProjData& proj_data, int subset_num, int 
   shared_ptr<DataSymmetriesForViewSegmentNumbers>
     symmetries_sptr(this->get_symmetries_used()->clone());
 
-  const std::vector<ViewSegmentNumbers> vs_nums_to_process =
+  const std::vector<ViewSegmentTOFNumbers> vs_nums_to_process =
     detail::find_basic_vs_nums_in_subset(*proj_data.get_proj_data_info_sptr(), *symmetries_sptr,
                                          proj_data.get_min_segment_num(), proj_data.get_max_segment_num(),
                                          subset_num, num_subsets);
@@ -217,24 +217,19 @@ BackProjectorByBin::back_project(const ProjData& proj_data, int subset_num, int 
     // note: older versions of openmp need an int as loop
     for (int i=0; i<static_cast<int>(vs_nums_to_process.size()); ++i)
       {
-        const ViewSegmentNumbers vs=vs_nums_to_process[i];
+        const ViewSegmentTOFNumbers vs=vs_nums_to_process[i];
 
-        for (int k=proj_data.get_proj_data_info_sptr()->get_min_tof_pos_num();
-              k<=proj_data.get_proj_data_info_sptr()->get_max_tof_pos_num();
-      		  ++k)
-        {
 #ifdef STIR_OPENMP
         RelatedViewgrams<float> viewgrams;
 #pragma omp critical (BACKPROJECTORBYBIN_GETVIEWGRAMS)
-        viewgrams = proj_data.get_related_viewgrams(vs, symmetries_sptr, false, k);
+        viewgrams = proj_data.get_related_viewgrams(vs, symmetries_sptr, false);
 #else
         const RelatedViewgrams<float> viewgrams = 
-          proj_data.get_related_viewgrams(vs, symmetries_sptr, false, k);
+          proj_data.get_related_viewgrams(vs, symmetries_sptr, false);
 #endif
 
         info(boost::format("Processing view %1% of segment %2%") % vs.view_num() % vs.segment_num(), 2);
         back_project(viewgrams);
-      }
   }
   }
 #ifdef STIR_OPENMP
@@ -291,7 +286,7 @@ back_project(const RelatedViewgrams<float>& viewgrams,
 
   // first check symmetries
   {
-    const ViewSegmentNumbers basic_vs = viewgrams.get_basic_view_segment_num();
+    const ViewSegmentTOFNumbers basic_vs = viewgrams.get_basic_view_segment_num();
 
     if (get_symmetries_used()->num_related_view_segment_numbers(basic_vs) !=
       viewgrams.get_num_viewgrams())
@@ -301,7 +296,7 @@ back_project(const RelatedViewgrams<float>& viewgrams,
      iter != viewgrams.end();
      ++iter)
       {
-    ViewSegmentNumbers vs(iter->get_view_num(), iter->get_segment_num());
+    ViewSegmentTOFNumbers vs(iter->get_view_num(), iter->get_segment_num());
     get_symmetries_used()->find_basic_view_segment_numbers(vs);
     if (vs != basic_vs)
       error("BackProjectorByBin::back_project called with incorrect related_viewgrams. Problem with symmetries!\n");

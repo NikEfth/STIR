@@ -145,7 +145,7 @@ apply(ProjData& proj_data,
   if (is_null_ptr(symmetries_sptr))
     symmetries_sptr.reset(new TrivialDataSymmetriesForBins(proj_data.get_proj_data_info_sptr()->create_shared_clone()));
 
-  const std::vector<ViewSegmentNumbers> vs_nums_to_process = 
+  const std::vector<ViewSegmentTOFNumbers> vs_nums_to_process =
     detail::find_basic_vs_nums_in_subset(*proj_data.get_proj_data_info_sptr(), *symmetries_sptr,
                                          proj_data.get_min_segment_num(), proj_data.get_max_segment_num(),
                                          0, 1/*subset_num, num_subsets*/);
@@ -156,13 +156,8 @@ apply(ProjData& proj_data,
     // note: older versions of openmp need an int as loop
   for (int i=0; i<static_cast<int>(vs_nums_to_process.size()); ++i)
     {
-      const ViewSegmentNumbers vs=vs_nums_to_process[i];
+      const ViewSegmentTOFNumbers vs=vs_nums_to_process[i];
       
-      for (int k=proj_data.get_proj_data_info_sptr()->get_min_tof_pos_num();
-              k<=proj_data.get_proj_data_info_sptr()->get_max_tof_pos_num();
-    		  ++k)
-      {
-
 		  RelatedViewgrams<float> viewgrams;
 #ifdef STIR_OPENMP
 		  // reading/writing to streams is not safe in multi-threaded code
@@ -173,7 +168,7 @@ apply(ProjData& proj_data,
 #endif
 		  {
 			viewgrams =
-			  proj_data.get_related_viewgrams(vs, symmetries_sptr, false, k);
+			  proj_data.get_related_viewgrams(vs, symmetries_sptr, false);
 		  }
 
 		  this->apply(viewgrams, start_time, end_time);
@@ -186,7 +181,6 @@ apply(ProjData& proj_data,
 		  }
       }
     }
-}
 
 void 
 BinNormalisation::
@@ -197,7 +191,7 @@ undo(ProjData& proj_data,const double start_time, const double end_time,
   if (is_null_ptr(symmetries_sptr))
     symmetries_sptr.reset(new TrivialDataSymmetriesForBins(proj_data.get_proj_data_info_sptr()->create_shared_clone()));
 
-  const std::vector<ViewSegmentNumbers> vs_nums_to_process = 
+  const std::vector<ViewSegmentTOFNumbers> vs_nums_to_process =
     detail::find_basic_vs_nums_in_subset(*proj_data.get_proj_data_info_sptr(), *symmetries_sptr,
                                          proj_data.get_min_segment_num(), proj_data.get_max_segment_num(),
                                          0, 1/*subset_num, num_subsets*/);
@@ -208,19 +202,15 @@ undo(ProjData& proj_data,const double start_time, const double end_time,
     // note: older versions of openmp need an int as loop
   for (int i=0; i<static_cast<int>(vs_nums_to_process.size()); ++i)
     {
-      const ViewSegmentNumbers vs=vs_nums_to_process[i];
+      const ViewSegmentTOFNumbers vs=vs_nums_to_process[i];
       
-      for (int k=proj_data.get_proj_data_info_sptr()->get_min_tof_pos_num();
-              k<=proj_data.get_proj_data_info_sptr()->get_max_tof_pos_num();
-    		  ++k)
-      {
 		  RelatedViewgrams<float> viewgrams;
 #ifdef STIR_OPENMP
 #pragma omp critical (BINNORMALISATION_UNDO__VIEWGRAMS)
 #endif
 		  {
 			viewgrams =
-			  proj_data.get_related_viewgrams(vs, symmetries_sptr,false,k);
+                    proj_data.get_related_viewgrams(vs, symmetries_sptr, false);
 		  }
 
 		  this->undo(viewgrams, start_time, end_time);
@@ -233,7 +223,6 @@ undo(ProjData& proj_data,const double start_time, const double end_time,
 		  }
       }
     }
-}
 
  
 END_NAMESPACE_STIR

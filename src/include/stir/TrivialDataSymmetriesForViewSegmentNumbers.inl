@@ -39,7 +39,7 @@ clone() const
 
 void
 TrivialDataSymmetriesForViewSegmentNumbers::
-get_related_view_segment_numbers(std::vector<ViewSegmentNumbers>& all, const ViewSegmentNumbers& v_s) const
+get_related_view_segment_numbers(std::vector<ViewSegmentTOFNumbers>& all, const ViewSegmentTOFNumbers& v_s) const
 {
   all.resize(1);
   all[0] = v_s;
@@ -48,14 +48,14 @@ get_related_view_segment_numbers(std::vector<ViewSegmentNumbers>& all, const Vie
 
 int
 TrivialDataSymmetriesForViewSegmentNumbers::
-num_related_view_segment_numbers(const ViewSegmentNumbers& v_s) const
+num_related_view_segment_numbers(const ViewSegmentTOFNumbers& v_s) const
 {
   return 1;
 }
 
 bool
 TrivialDataSymmetriesForViewSegmentNumbers::
-find_basic_view_segment_numbers(ViewSegmentNumbers& v_s) const
+find_basic_view_segment_numbers(ViewSegmentTOFNumbers& v_s) const
 {
   return false;
 }

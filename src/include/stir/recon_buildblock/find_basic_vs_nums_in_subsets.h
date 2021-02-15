@@ -27,7 +27,7 @@
 */
 
 
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include <vector>
 
 START_NAMESPACE_STIR
@@ -46,7 +46,7 @@ namespace detail
     to construct a list of view/segments that are in a subset, and which are
     "basic" w.r.t the symmetries.
   */
-  std::vector<ViewSegmentNumbers> 
+  std::vector<ViewSegmentTOFNumbers>
   find_basic_vs_nums_in_subset(const ProjDataInfo& proj_data_info,
                                const DataSymmetriesForViewSegmentNumbers& symmetries, 
                                const int min_segment_num, const int max_segment_num,

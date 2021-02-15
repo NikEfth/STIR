@@ -4,7 +4,7 @@
   \file
   \ingroup projdata
 
-  \brief Definition of class stir::ViewSegmentNumbers
+  \brief Definition of class stir::ViewSegmentTOFNumbers
 
   \author Kris Thielemans
   \author Sanida Mustafovic
@@ -42,14 +42,14 @@ START_NAMESPACE_STIR
   \brief A very simple class to store view and segment numbers 
   \ingroup projdata 
 */
-class ViewSegmentNumbers
+class ViewSegmentTOFNumbers
 {
 public:
 
   //! an empty constructor (sets everything to 0)
-  inline  ViewSegmentNumbers();
+  inline  ViewSegmentTOFNumbers();
   //! constructor taking view and segment number as arguments
-  inline ViewSegmentNumbers( const int view_num, const int segment_num,
+  inline ViewSegmentTOFNumbers( const int view_num, const int segment_num,
                              const int tof_num = 0);
 
   //! get segment number for const objects
@@ -69,11 +69,11 @@ public:
  
   //! comparison operator, only useful for sorting
   /*! order : (0,1) < (0,-1) < (1,1) ...*/
-  inline bool operator<(const ViewSegmentNumbers& other) const;
+  inline bool operator<(const ViewSegmentTOFNumbers& other) const;
 
   //! test for equality
-  inline bool operator==(const ViewSegmentNumbers& other) const;
-  inline bool operator!=(const ViewSegmentNumbers& other) const;
+  inline bool operator==(const ViewSegmentTOFNumbers& other) const;
+  inline bool operator!=(const ViewSegmentTOFNumbers& other) const;
 
 private:
   int segment;

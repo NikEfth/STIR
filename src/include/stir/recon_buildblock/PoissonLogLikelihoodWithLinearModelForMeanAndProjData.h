@@ -374,7 +374,7 @@ protected:
   shared_ptr<DataSymmetriesForViewSegmentNumbers> symmetries_sptr;
 #if 0
   void
-    add_view_seg_to_sensitivity(TargetT& sensitivity, const ViewSegmentNumbers& view_seg_nums) const;
+    add_view_seg_to_sensitivity(TargetT& sensitivity, const ViewSegmentTOFNumbers& view_seg_nums) const;
 #endif
 };
 

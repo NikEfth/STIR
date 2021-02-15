@@ -32,7 +32,7 @@
 #include "stir/shared_ptr.h"
 #include "stir/IO/read_from_file.h"
 #include "stir/RelatedViewgrams.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/ProjData.h"
 #include "stir/IndexRange3D.h"
 #include "stir/IndexRange2D.h"

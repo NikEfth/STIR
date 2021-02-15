@@ -2,7 +2,7 @@
   \file
   \ingroup projdata
 
-  \brief inline implementations for class stir::ViewSegmentNumbers
+  \brief inline implementations for class stir::ViewSegmentTOFNumbers
 
   \author Kris Thielemans
   \author Sanida Mustafovic
@@ -31,58 +31,58 @@
 
 START_NAMESPACE_STIR
 
-ViewSegmentNumbers::ViewSegmentNumbers()
+ViewSegmentTOFNumbers::ViewSegmentTOFNumbers()
 :segment(0),view(0)
   {}
 
-ViewSegmentNumbers::ViewSegmentNumbers( const int view_num,const int segment_num,
+ViewSegmentTOFNumbers::ViewSegmentTOFNumbers( const int view_num,const int segment_num,
                                         const int tof_num)
     : segment(segment_num),view(view_num),tof(tof_num)
   {}
 
 int
-ViewSegmentNumbers::segment_num() const
+ViewSegmentTOFNumbers::segment_num() const
 {
   return segment;}
 int 
-ViewSegmentNumbers::view_num() const
+ViewSegmentTOFNumbers::view_num() const
 {
   return view;}
 
 int
-ViewSegmentNumbers::tof_pos_num() const
+ViewSegmentTOFNumbers::tof_pos_num() const
 {
   return tof;}
 
 int&
-ViewSegmentNumbers::segment_num() 
+ViewSegmentTOFNumbers::segment_num()
 {  return segment;}
 int& 
-ViewSegmentNumbers::view_num() 
+ViewSegmentTOFNumbers::view_num()
 { return view;}
 
 int&
-ViewSegmentNumbers::tof_pos_num()
+ViewSegmentTOFNumbers::tof_pos_num()
 { return tof;}
 
 bool 
-ViewSegmentNumbers::
-operator<(const ViewSegmentNumbers& other) const
+ViewSegmentTOFNumbers::
+operator<(const ViewSegmentTOFNumbers& other) const
 {
   return (view< other.view) ||
     ((view == other.view) && (segment > other.segment));
 }
 
 bool 
-ViewSegmentNumbers::
-operator==(const ViewSegmentNumbers& other) const
+ViewSegmentTOFNumbers::
+operator==(const ViewSegmentTOFNumbers& other) const
 {
   return (view == other.view) && (segment == other.segment) && (tof == other.tof);
 }
 
 bool 
-ViewSegmentNumbers::
-operator!=(const ViewSegmentNumbers& other) const
+ViewSegmentTOFNumbers::
+operator!=(const ViewSegmentTOFNumbers& other) const
 {
   return !(*this == other);
 }

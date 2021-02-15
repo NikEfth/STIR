@@ -25,7 +25,7 @@
 */
 
 #include "stir/DataSymmetriesForViewSegmentNumbers.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include <typeinfo>
 
 using std::vector;
@@ -65,18 +65,18 @@ operator !=(const root_type& that) const
 
 
 int
-DataSymmetriesForViewSegmentNumbers::num_related_view_segment_numbers(const ViewSegmentNumbers& vs) const
+DataSymmetriesForViewSegmentNumbers::num_related_view_segment_numbers(const ViewSegmentTOFNumbers& vs) const
 {
-  vector<ViewSegmentNumbers> rel_vs;
+  vector<ViewSegmentTOFNumbers> rel_vs;
   get_related_view_segment_numbers(rel_vs, vs);
   return static_cast<int>(rel_vs.size());
 }
 
 bool
 DataSymmetriesForViewSegmentNumbers::
-is_basic(const ViewSegmentNumbers& v_s) const
+is_basic(const ViewSegmentTOFNumbers& v_s) const
 {
-  ViewSegmentNumbers copy = v_s;
+  ViewSegmentTOFNumbers copy = v_s;
   return !find_basic_view_segment_numbers(copy);
 }
 

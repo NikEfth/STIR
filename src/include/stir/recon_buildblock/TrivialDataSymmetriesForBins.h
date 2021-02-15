@@ -77,15 +77,15 @@ public:
     is_basic(const Bin& v_s) const;
 
   virtual unique_ptr<SymmetryOperation>
-    find_symmetry_operation_from_basic_view_segment_numbers(ViewSegmentNumbers&) const;
+    find_symmetry_operation_from_basic_view_segment_numbers(ViewSegmentTOFNumbers&) const;
 
   virtual void
-    get_related_view_segment_numbers(std::vector<ViewSegmentNumbers>&, const ViewSegmentNumbers&) const;
+    get_related_view_segment_numbers(std::vector<ViewSegmentTOFNumbers>&, const ViewSegmentTOFNumbers&) const;
 
   virtual int
-    num_related_view_segment_numbers(const ViewSegmentNumbers&) const;
+    num_related_view_segment_numbers(const ViewSegmentTOFNumbers&) const;
   virtual bool
-    find_basic_view_segment_numbers(ViewSegmentNumbers&) const;
+    find_basic_view_segment_numbers(ViewSegmentTOFNumbers&) const;
 
 private:
   virtual bool blindly_equals(const root_type * const) const;

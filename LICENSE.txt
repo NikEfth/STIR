@@ -43,7 +43,7 @@ Explicit list of files that carry the PARAPET license
 ./src/include/stir/error.h
 ./src/include/stir/stream.h
 ./src/include/stir/Viewgram.inl
-./src/include/stir/ViewSegmentNumbers.h
+./src/include/stir/ViewSegmentTOFNumbers.h
 ./src/include/stir/linear_regression.h
 ./src/include/stir/SegmentByView.inl
 ./src/include/stir/zoom.h
@@ -85,7 +85,7 @@ Explicit list of files that carry the PARAPET license
 ./src/include/stir/ProjDataInfoCylindricalArcCorr.inl
 ./src/include/stir/Array1d.h
 ./src/include/stir/display.h
-./src/include/stir/ViewSegmentNumbers.inl
+./src/include/stir/ViewSegmentTOFNumbers.inl
 ./src/include/stir/HighResWallClockTimer.h
 ./src/include/stir/DiscretisedDensityOnCartesianGrid.inl
 ./src/include/stir/ArrayFunction.inl

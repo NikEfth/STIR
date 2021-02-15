@@ -31,7 +31,7 @@
 
 #include "stir/recon_buildblock/DataSymmetriesForBins.h"
 #include "stir/Bin.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/BasicCoordinate.h"
 #include "stir/recon_buildblock/SymmetryOperation.h"
 
@@ -100,14 +100,14 @@ get_related_bins(vector<Bin>& rel_b, const Bin& b,
   assert(!find_basic_bin(bin_copy));
 #endif
 
-  vector<ViewSegmentNumbers> vs;
+  vector<ViewSegmentTOFNumbers> vs;
   vector<AxTangPosNumbers> ax_tang_poss;
 
   get_related_bins_factorised(ax_tang_poss, b,
                               min_axial_pos_num, max_axial_pos_num,
                               min_tangential_pos_num, max_tangential_pos_num);
 
-  get_related_view_segment_numbers(vs, ViewSegmentNumbers(b.view_num(), b.segment_num()));
+  get_related_view_segment_numbers(vs, ViewSegmentTOFNumbers(b.view_num(), b.segment_num()));
 
   rel_b.reserve(ax_tang_poss.size() * vs.size());
   rel_b.resize(0);
@@ -117,7 +117,7 @@ get_related_bins(vector<Bin>& rel_b, const Bin& b,
     // VC bug work-around...
        std::
 #endif
-         vector<ViewSegmentNumbers>::const_iterator view_seg_ptr = vs.begin();
+         vector<ViewSegmentTOFNumbers>::const_iterator view_seg_ptr = vs.begin();
        view_seg_ptr != vs.end();
        ++view_seg_ptr)
   {
@@ -141,7 +141,7 @@ get_related_bins(vector<Bin>& rel_b, const Bin& b,
 
 unique_ptr<SymmetryOperation>
 DataSymmetriesForBins::
-find_symmetry_operation_from_basic_view_segment_numbers(ViewSegmentNumbers& vs) const
+find_symmetry_operation_from_basic_view_segment_numbers(ViewSegmentTOFNumbers& vs) const
 {
   Bin bin(vs.segment_num(), vs.view_num(),0,0);
 #ifndef NDEBUG

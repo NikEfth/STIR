@@ -45,7 +45,7 @@
 #include "stir/RelatedViewgrams.h"
 #include "stir/ProjData.h"
 #include "stir/DiscretisedDensity.h"
-#include "stir/ViewSegmentNumbers.h"
+#include "stir/ViewSegmentTOFNumbers.h"
 #include "stir/CPUTimer.h"
 #include "stir/recon_buildblock/ForwardProjectorByBin.h"
 #include "stir/recon_buildblock/BackProjectorByBin.h"
