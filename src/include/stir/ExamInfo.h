@@ -1,16 +1,9 @@
 /*
-    Copyright (C) 2013, 2018, 2020 University College London
+    Copyright (C) 2021 National Physical Laboratory
+    Copyright (C) 2013, 2018, 2020-2021 University College London
     This file is part of STIR.
 
-    This file is free software; you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation; either version 2.1 of the License, or
-    (at your option) any later version.
-
-    This file is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+    SPDX-License-Identifier: Apache-2.0
 
     See STIR/LICENSE.txt for details
 */
@@ -20,6 +13,7 @@
   \brief  This file declares the class stir::ExamInfo
   \author Kris Thielemans
   \author Nikos Efthimiou
+  \author Daniel Deidda
 */
 
 
@@ -124,17 +118,7 @@ public :
       time_frame_definitions = new_time_frame_definitions;
     }
 
-  bool operator == (const ExamInfo &p1) const {      
-      return  this->up_energy_thres==p1.up_energy_thres &&
-              this->low_energy_thres==p1.low_energy_thres &&
-              this->radionuclide==p1.radionuclide &&
-              this->time_frame_definitions==p1.time_frame_definitions &&
-//              this->branching_ratio==p1.branching_ratio &&
-              this->calibration_factor==p1.calibration_factor &&
-              this->imaging_modality==p1.imaging_modality &&
-              this->originating_system==p1.originating_system &&
-              this->patient_position==p1.patient_position &&
-              this->start_time_in_secs_since_1970==p1.start_time_in_secs_since_1970; }
+  bool operator == (const ExamInfo &p1) const ;
   
   //! Clone and create shared_ptr of the copy
   shared_ptr<ExamInfo> create_shared_clone()

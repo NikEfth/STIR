@@ -4,15 +4,7 @@
     Copyright (C) 2000- 2013, Hammersmith Imanet Ltd
     This file is part of STIR.
 
-    This file is free software; you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation; either version 2.1 of the License, or
-    (at your option) any later version.
-
-    This file is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+    SPDX-License-Identifier: Apache-2.0
 
     See STIR/LICENSE.txt for details
 */
@@ -138,7 +130,7 @@ is_trivial() const
 }
 
 void 
-BinNormalisationFromProjData::apply(RelatedViewgrams<float>& viewgrams,const double start_time, const double end_time) const 
+BinNormalisationFromProjData::apply(RelatedViewgrams<float>& viewgrams) const 
   {
     this->check(*viewgrams.get_proj_data_info_sptr());
     const ViewSegmentNumbers vs_num=viewgrams.get_basic_view_segment_num();
@@ -150,7 +142,7 @@ BinNormalisationFromProjData::apply(RelatedViewgrams<float>& viewgrams,const dou
 
 void 
 BinNormalisationFromProjData::
-undo(RelatedViewgrams<float>& viewgrams,const double start_time, const double end_time) const 
+undo(RelatedViewgrams<float>& viewgrams) const 
   {
     this->check(*viewgrams.get_proj_data_info_sptr());
     const ViewSegmentNumbers vs_num=viewgrams.get_basic_view_segment_num();
@@ -162,7 +154,7 @@ undo(RelatedViewgrams<float>& viewgrams,const double start_time, const double en
   }
 
 float 
-BinNormalisationFromProjData::get_bin_efficiency(const Bin& bin,const double start_time, const double end_time) const
+BinNormalisationFromProjData::get_bin_efficiency(const Bin& bin) const
 {
   //TODO
   error("BinNormalisationFromProjData::get_bin_efficiency is not implemented");
@@ -177,4 +169,3 @@ BinNormalisationFromProjData::get_norm_proj_data_sptr() const
 }
  
 END_NAMESPACE_STIR
-

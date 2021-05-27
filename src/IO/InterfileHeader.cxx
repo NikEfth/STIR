@@ -5,15 +5,7 @@
     Copyright (C) 2013, 2016, 2018, 2020 University College London
     This file is part of STIR.
 
-    This file is free software; you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation; either version 2.1 of the License, or
-    (at your option) any later version.
-
-    This file is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+    SPDX-License-Identifier: Apache-2.0 AND License-ref-PARAPET-license
 
     See STIR/LICENSE.txt for details
 */
@@ -167,6 +159,7 @@ InterfileHeader::InterfileHeader()
   data_offset_each_dataset.resize(num_time_frames, 0UL);
 
   data_offset = 0UL;
+  calibration_factor=-1;
 
 
 
@@ -175,6 +168,8 @@ InterfileHeader::InterfileHeader()
   add_key("originating system", &exam_info_sptr->originating_system);
   ignore_key("GENERAL DATA");
   ignore_key("GENERAL IMAGE DATA");
+  
+  add_key("calibration factor", &calibration_factor); 
   add_key("isotope name", &isotope_name); 
   add_key("study date", &study_date_time.date);
   add_key("study_time", &study_date_time.time);
@@ -266,6 +261,9 @@ bool InterfileHeader::post_processing()
       catch(...)
         {}
     }
+  
+//  if(this->calibration_factor>0)
+      this->exam_info_sptr->set_calibration_factor(calibration_factor);
   
   if (!isotope_name.empty()){
       this->exam_info_sptr->set_radionuclide(isotope_name);
@@ -472,9 +470,6 @@ InterfileImageHeader::InterfileImageHeader()
     KeyArgument::INT,	(KeywordProcessor)&InterfileImageHeader::read_image_data_types,&num_image_data_types);
   add_key("index nesting level", &index_nesting_level);
   add_vectorised_key("image data type description", &image_data_type_description);
-  
-  add_key("calibration factor", &calibration_factor); 
-  
 }
 
 void InterfileImageHeader::read_image_data_types()
@@ -506,8 +501,6 @@ bool InterfileImageHeader::post_processing()
 
   if (InterfileHeader::post_processing() == true)
     return true;
-  
-  this->exam_info_sptr->set_calibration_factor(calibration_factor);
   
   if (PET_data_type_values[PET_data_type_index] != "Image")
     { warning("Interfile error: expecting an image\n");  return true; }

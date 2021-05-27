@@ -1,14 +1,6 @@
 # This file is part of STIR.
 #
-# This file is free software; you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation; either version 2.1 of the License, or
-# (at your option) any later version.
-#
-# This file is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
+# SPDX-License-Identifier: Apache-2.0
 #
 # See STIR/LICENSE.txt for details
 
@@ -30,8 +22,6 @@ PROJECT(STIR)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# require 2.8.3 to get FOLDER properties support (without that, we only need cmake 2.6)
-cmake_minimum_required(VERSION 2.8.3)
 if (POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW) # Compiler Id for Apple Clang is AppleClang, see STIR issue #531
 endif()
@@ -103,6 +93,7 @@ option(DISABLE_CERN_ROOT "disable use of Cern ROOT libraries" OFF)
 option(DISABLE_NLOHMANN_JSON "disable use of nlohmann JSON libraries" OFF)
 option(STIR_ENABLE_EXPERIMENTAL "disable use of STIR experimental code" OFF) # disable by default
 option(DISABLE_NiftyPET_PROJECTOR "disable use of NiftyPET projector" OFF)
+option(DISABLE_Parallelproj_PROJECTOR "disable use of Parallelproj projector" OFF)
 
 if(NOT DISABLE_ITK)
    # See if we can find a compiled version of ITK (http://www.itk.org/)
@@ -153,12 +144,16 @@ if(NOT DISABLE_NLOHMANN_JSON)
     endif()
 endif()
 
-# Enable version 3 projectors
+# Legacy options
 option(STIR_PROJECTORS_AS_V3 "Enable STIR version 3 legacy code" OFF)
+option(STIR_LEGACY_IGNORE_VIEW_OFFSET "Ignore using scanner view-offset (or intrinsic azimuthal tilt), as in STIR 4 or earlier" OFF)
 
 # NiftyPET projector
-if(NOT DISABLE_NiftyPET_PROJECTOR)
+if(NOT DISABLE_NiftyPET_PROJECTOR OR NOT DISABLE_Parallelproj_PROJECTOR)
   find_package(CUDAToolkit QUIET)
+endif()
+
+if(NOT DISABLE_NiftyPET_PROJECTOR)
   if (CUDAToolkit_FOUND)
     find_package(NiftyPET)
     if (NiftyPET_FOUND)
@@ -170,6 +165,24 @@ if (STIR_WITH_NiftyPET_PROJECTOR)
   message(STATUS "NiftyPET projector support enabled.")
 else()
   message(STATUS "NiftyPET projector support disabled.")
+endif()
+
+# Parallelproj
+if(NOT DISABLE_Parallelproj_PROJECTOR)
+    find_package(parallelproj)
+    if (parallelproj_FOUND)
+      set(STIR_WITH_Parallelproj_PROJECTOR ON)
+      if (parallelproj_built_with_CUDA)
+        message(STATUS "Found parallelproj (will use its CUDA support)")
+      else()
+        message(STATUS "Found parallelproj (but using its OpenMP version as it wasn't built with CUDA)")
+      endif()
+    endif()
+endif()
+if (STIR_WITH_Parallelproj_PROJECTOR)
+  message(STATUS "Parallelproj projector support enabled.")
+else()
+  message(STATUS "Parallelproj projector support disabled or not available.")
 endif()
 
 #### enable support for ctest

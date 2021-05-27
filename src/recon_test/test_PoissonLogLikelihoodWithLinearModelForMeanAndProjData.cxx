@@ -3,15 +3,7 @@
     Copyright (C) 2013, University College London
     This file is part of STIR.
 
-    This file is free software; you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation; either version 2.1 of the License, or
-    (at your option) any later version.
-
-    This file is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+    SPDX-License-Identifier: Apache-2.0
 
     See STIR/LICENSE.txt for details
 */
@@ -106,6 +98,9 @@ public:
 protected:
   char const * proj_data_filename;
   char const * density_filename;
+  shared_ptr<ProjData> proj_data_sptr;
+  shared_ptr<ProjData> mult_proj_data_sptr;
+  shared_ptr<ProjData> add_proj_data_sptr;
   shared_ptr<GeneralisedObjectiveFunction<target_type> >  objective_function_sptr;
 
   //! run the test
@@ -150,16 +145,23 @@ run_tests_for_objective_function(GeneralisedObjectiveFunction<PoissonLogLikeliho
     }
   if (!testOK)
     {
-      info("Writing diagnostic files gradient.hv, numerical_gradient.hv");
+      info("Writing diagnostic files target.hv, gradient.hv, numerical_gradient.hv");
+      write_to_file("target.hv", target);
       write_to_file("gradient.hv", *gradient_sptr);
       write_to_file("numerical_gradient.hv", *gradient_2_sptr);
-#if 0
+#if 1
+    info("Writing diagnostic files subsens.hv, gradient-without-sens.hv, "
+         "proj_data.hs, mult_proj_data.hs and add_proj_data.hs");
+
       write_to_file("subsens.hv", 
                     reinterpret_cast<const PoissonLogLikelihoodWithLinearModelForMeanAndProjData<target_type> &>(objective_function).get_subset_sensitivity(subset_num));
-      gradient_sptr->fill(0.F);
-      reinterpret_cast<PoissonLogLikelihoodWithLinearModelForMeanAndProjData<target_type> &>(objective_function).
-        compute_sub_gradient_without_penalty_plus_sensitivity(*gradient_sptr, target, subset_num);
-      write_to_file("gradient-without-sens.hv", *gradient_sptr);
+    gradient_sptr->fill(0.F);
+    reinterpret_cast<PoissonLogLikelihoodWithLinearModelForMeanAndProjData<target_type> &>(objective_function).
+      compute_sub_gradient_without_penalty_plus_sensitivity(*gradient_sptr, target, subset_num);
+    write_to_file("gradient-without-sens.hv", *gradient_sptr);
+    proj_data_sptr->write_to_file("proj_data.hs");
+    mult_proj_data_sptr->write_to_file("mult_proj_data.hs");
+    add_proj_data_sptr->write_to_file("add_proj_data.hs");
 #endif
     }
 
@@ -169,7 +171,6 @@ void
 PoissonLogLikelihoodWithLinearModelForMeanAndProjDataTests::
 construct_input_data(shared_ptr<target_type>& density_sptr)
 { 
-  shared_ptr<ProjData> proj_data_sptr;
   if (this->proj_data_filename == 0)
     {
       // construct a small scanner and sinogram
@@ -252,9 +253,8 @@ construct_input_data(shared_ptr<target_type>& density_sptr)
   // multiplicative term
   shared_ptr<BinNormalisation> bin_norm_sptr(new TrivialBinNormalisation());
   {
-    shared_ptr<ProjData> 
-      mult_proj_data_sptr(new ProjDataInMemory (proj_data_sptr->get_exam_info_sptr(),
-						proj_data_sptr->get_proj_data_info_sptr()->create_shared_clone()));
+    mult_proj_data_sptr.reset(new ProjDataInMemory (proj_data_sptr->get_exam_info_sptr(),
+                                                    proj_data_sptr->get_proj_data_info_sptr()->create_shared_clone()));
     for (int seg_num=proj_data_sptr->get_min_segment_num(); 
          seg_num<=proj_data_sptr->get_max_segment_num();
          ++seg_num)
@@ -280,9 +280,8 @@ construct_input_data(shared_ptr<target_type>& density_sptr)
   }
 
   // additive term
-  shared_ptr<ProjData> add_proj_data_sptr(new ProjDataInMemory (proj_data_sptr->get_exam_info_sptr(),
-								
-proj_data_sptr->get_proj_data_info_sptr()->create_shared_clone()));
+  add_proj_data_sptr.reset(new ProjDataInMemory (proj_data_sptr->get_exam_info_sptr(),
+                                                 proj_data_sptr->get_proj_data_info_sptr()->create_shared_clone()));
   {
     for (int seg_num=proj_data_sptr->get_min_segment_num(); 
          seg_num<=proj_data_sptr->get_max_segment_num();
