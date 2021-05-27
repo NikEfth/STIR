@@ -163,7 +163,7 @@ namespace distributed
    * \param tag identifier to associate messages
    * \param destination the process id where to send the double values. If set to -1 a Broadcast will be done
    */
-  void send_view_segment_numbers(const stir::ViewSegmentNumbers& vs_num, int tag, int destination);
+  void send_view_segment_numbers(const stir::ViewSegmentNumbers& vs_num, const int& timing_pos_num, int tag, int destination);
         
   /*! \brief send or broadcast a projector-pair object
    * \param proj_pair_sptr value to be sent
@@ -313,7 +313,7 @@ namespace distributed
    *
    * The tag needs to be set to ARBITRARY_TAG (=8) if MPI_ANY_TAG shall be used
    */
-  MPI_Status receive_view_segment_numbers(stir::ViewSegmentNumbers& vs_num, int tag);
+  MPI_Status receive_view_segment_numbers(stir::ViewSegmentNumbers& vs_num, int& timing_pos_num, int tag);
         
   /*! \brief receives the parameters of a DiscretisedDensity object
    * \param image_ptr address pointer of the new DiscretisedDensity 

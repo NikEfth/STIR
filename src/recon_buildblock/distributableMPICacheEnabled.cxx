@@ -149,8 +149,7 @@ static void send_viewgrams(const shared_ptr<RelatedViewgrams<float> >& y,
                     const shared_ptr<RelatedViewgrams<float> >& mult_viewgrams_sptr,
                     const int next_receiver)
 {
-  distributed::send_view_segment_numbers( y->get_basic_view_segment_num(), NEW_VIEWGRAM_TAG, next_receiver);
-  distributed::send_int_value( y->get_basic_timing_pos_num(), next_receiver);
+  distributed::send_view_segment_numbers( y->get_basic_view_segment_num(), y->get_basic_timing_pos_num(), NEW_VIEWGRAM_TAG, next_receiver);
 
 #ifndef NDEBUG
   //test sending related viewgrams
@@ -306,7 +305,7 @@ void distributable_computation_cache_enabled(
 			{
 			  info(boost::format("Re-using  segment %1%, view %2%, TOF bin %3% to slave %4%\n") % view_segment_num.segment_num() % view_segment_num.view_num() % timing_pos_num % next_receiver);
 			  //send vs_num with reuse-tag, the slave will immediatelly start calculation
-			  distributed::send_view_segment_numbers( view_segment_num, REUSE_VIEWGRAM_TAG, next_receiver);
+			  distributed::send_view_segment_numbers( view_segment_num, timing_pos_num, REUSE_VIEWGRAM_TAG, next_receiver);
 			}
 
 		  working_slaves_count++;

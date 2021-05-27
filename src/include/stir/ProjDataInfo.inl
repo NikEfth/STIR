@@ -111,8 +111,8 @@ ProjDataInfo::get_unmashed_tof_bin(const double delta) const
 
   for (int i = min_unmashed_tof_pos_num; i <= max_unmashed_tof_pos_num; ++i)
   {
-    if (delta >= tof_bin_boundaries_ps[i].low_lim &&
-      delta < tof_bin_boundaries_ps[i].high_lim)
+    if (delta >= tof_bin_unmashed_boundaries_ps[i].low_lim &&
+      delta < tof_bin_unmashed_boundaries_ps[i].high_lim)
       return i;
   }
   // TODO handle differently

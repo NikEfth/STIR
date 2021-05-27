@@ -304,7 +304,8 @@ namespace stir
                                 
             //receive vs_num values     
             ViewSegmentNumbers vs;
-            status = distributed::receive_view_segment_numbers(vs, MPI_ANY_TAG);
+            int timing_pos_num;
+            status = distributed::receive_view_segment_numbers(vs, timing_pos_num, MPI_ANY_TAG);
                         
             /*check whether to
              *  - use a viewgram already received in previous iteration
@@ -313,13 +314,13 @@ namespace stir
              */         
             if (status.MPI_TAG==REUSE_VIEWGRAM_TAG) //use a viewgram already available
               {                        
-                viewgrams = new RelatedViewgrams<float>(proj_data_ptr->get_related_viewgrams(vs, symmetries_sptr));
+                viewgrams = new RelatedViewgrams<float>(proj_data_ptr->get_related_viewgrams(vs, symmetries_sptr, false, timing_pos_num));
                 if (!is_null_ptr(binwise_correction))
                   additive_binwise_correction_viewgrams = 
-                    new RelatedViewgrams<float>(binwise_correction->get_related_viewgrams(vs, symmetries_sptr));
+                    new RelatedViewgrams<float>(binwise_correction->get_related_viewgrams(vs, symmetries_sptr, false, timing_pos_num));
                 if (!is_null_ptr(mult_proj_data_sptr))
                   mult_viewgrams_ptr = 
-                    new RelatedViewgrams<float>(mult_proj_data_sptr->get_related_viewgrams(vs, symmetries_sptr));
+                    new RelatedViewgrams<float>(mult_proj_data_sptr->get_related_viewgrams(vs, symmetries_sptr, false, timing_pos_num));
               } 
             else if (status.MPI_TAG==NEW_VIEWGRAM_TAG) //receive a message with a new viewgram
               {

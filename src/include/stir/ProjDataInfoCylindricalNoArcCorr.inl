@@ -146,7 +146,7 @@ get_bin_for_det_pair(Bin& bin,
   }
   else
   {
-	bin.timing_pos_num() = -timing_pos_num;
+	bin.timing_pos_num() = timing_pos_num;
     return get_segment_axial_pos_num_for_ring_pair(bin.segment_num(), bin.axial_pos_num(), ring_num2, ring_num1);
   }
 }
@@ -156,6 +156,8 @@ ProjDataInfoCylindricalNoArcCorr::
 get_bin_for_det_pos_pair(Bin& bin,
                          const DetectionPositionPair<>& dp) const
 {
+  int tof_mash_factor_ = this->get_tof_mash_factor();
+  int timing_pos_ = dp.timing_pos();
   return
     get_bin_for_det_pair(bin,
                          dp.pos1().tangential_coord(),
@@ -164,7 +166,7 @@ get_bin_for_det_pos_pair(Bin& bin,
                          dp.pos2().axial_coord(),
                          this->get_tof_mash_factor()==0
                            ? 0 // use timing_pos==0 in the nonTOF case
-                           : stir::round((float)dp.timing_pos()/this->get_tof_mash_factor()));
+                           : stir::round((float)timing_pos_/tof_mash_factor_));
 }
 void
 ProjDataInfoCylindricalNoArcCorr::
