@@ -851,9 +851,9 @@ test_proj_data_info(ProjDataInfoCylindricalNoArcCorr& proj_data_info)
             for (det_pos_pair.pos2().tangential_coord() = 0; 
                  det_pos_pair.pos2().tangential_coord() < (unsigned)num_detectors;
                  det_pos_pair.pos2().tangential_coord()++)
-              for (det_pos_pair.timing_pos() = 0; // currently unsigned so start from 0
-                   det_pos_pair.timing_pos() <= (unsigned)proj_data_info.get_max_tof_pos_num();
-                   det_pos_pair.timing_pos() += (unsigned)std::max(1,proj_data_info.get_max_tof_pos_num()))
+              for (det_pos_pair.timing_pos() = proj_data_info.get_min_tof_pos_num();
+                   det_pos_pair.timing_pos() <= proj_data_info.get_max_tof_pos_num();
+                   det_pos_pair.timing_pos() += std::max(1,proj_data_info.get_max_tof_pos_num()))
                 {
 
                   // set from for-loop variable
@@ -1010,6 +1010,15 @@ test_proj_data_info(ProjDataInfoCylindricalNoArcCorr& proj_data_info)
 			     << ", view = " << new_bin.view_num() 
 			     << ", tangential_pos_num = " << new_bin.tangential_pos_num()
            << ", timing_pos - " << new_bin.timing_pos_num() 
+           << endl;
+			cerr << "  bin -> dets, was:\n\t"
+			     << "d1.tang = " << det_pos_pair_iter->pos1().tangential_coord()
+			     << ", d1.ax = " << det_pos_pair_iter->pos1().axial_coord()
+			     << ", d1.rad = " << det_pos_pair_iter->pos1().radial_coord()
+			     << ", d2.tang = " << det_pos_pair_iter->pos2().tangential_coord()
+			     << ", d2.ax = " << det_pos_pair_iter->pos2().axial_coord()
+			     << ", d2.rad = " << det_pos_pair_iter->pos2().radial_coord()
+           << ", timing_pos - " << det_pos_pair_iter->timing_pos()
            << endl;
 		    }
 		} // end of iteration of det_pos_pairs

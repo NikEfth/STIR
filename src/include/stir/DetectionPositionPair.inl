@@ -22,14 +22,14 @@ START_NAMESPACE_STIR
 template <typename coordT>
 DetectionPositionPair<coordT>::
 DetectionPositionPair()
-  : _timing_pos(static_cast<coordT>(0))
+  : _timing_pos(0)
 {}
 
 template <typename coordT>
 DetectionPositionPair<coordT>::
 DetectionPositionPair(const DetectionPosition<coordT>& pos1,
                       const DetectionPosition<coordT>& pos2,
-					  const coordT timing_pos)
+					  const int timing_pos)
   : p1(pos1), p2(pos2), _timing_pos(timing_pos)
 {}
 
@@ -46,7 +46,7 @@ pos2() const
 { return p2; }
 
 template <typename coordT>
-const coordT
+const int
 DetectionPositionPair<coordT>::
 timing_pos() const
 { return _timing_pos; }
