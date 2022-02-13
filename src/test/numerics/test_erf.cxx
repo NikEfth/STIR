@@ -139,9 +139,9 @@ erfTests::test_FastErf()
   const float upper_samle_limit = 2 * e.get_maximum_sample_value() + 1;
   const float lower_samle_limit = -(upper_samle_limit);
   double sample_period = M_PI/ 10000;  // Needed a number that wasn't regular and this worked...
-  // Test the FastErf interpolations 2* beyond the maximum_sample_value.
-  // The while (-maximum_sample_value > xp) or (maximum_sample_value < xp),
-  // xp is clamped to -maximum_sample_value or maximum_sample_value
+  // Test the FastErf interpolations 2* beyond the _maximum_sample_value.
+  // The while (-_maximum_sample_value > xp) or (_maximum_sample_value < xp),
+  // xp is clamped to -_maximum_sample_value or _maximum_sample_value
   for (double xp = lower_samle_limit; xp < upper_samle_limit; xp += sample_period)
     {
       this->actual_test_FastErf(xp);

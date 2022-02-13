@@ -32,10 +32,10 @@ class FastErf
 {
 private:
 
-  //! The number of erf samples to take from -\cmaximum_sample_value to \cmaximum_sample_value
+  //! The number of erf samples to take from -\c_maximum_sample_value to \c_maximum_sample_value
   int _num_samples = 1000;
 
-  //! The sampling period, computed as \cmaximum_sample_value / \c_num_samples)
+  //! The sampling period, computed as \c_maximum_sample_value / \c_num_samples)
   double _sampling_period;
 
 //  //! Used to check if setup has been run before parameter changes
@@ -45,16 +45,16 @@ private:
   BSpline::BSplines1DRegularGrid<double, double> spline;
 
   /*! The upper bound value x value of erf(x) used in sampling. Default erf(x=5) ~= 1.
-   * The negative \cmaximum_sample_value is used as the lower bound.
+   * The negative \c_maximum_sample_value is used as the lower bound.
    */
-  double maximum_sample_value = 5;
+  double _maximum_sample_value = 5;
 
   //! a vector/list of stored erf values
   std::vector<double> erf_values_vec;
 
 public:
   explicit FastErf(const int num_samples = 1000, const float maximum_sample_value = 5)
-      : _num_samples(num_samples), maximum_sample_value(maximum_sample_value )
+      : _num_samples(num_samples), _maximum_sample_value(maximum_sample_value )
   {}
 
   //! Returns the number of erf samples
@@ -71,7 +71,7 @@ public:
   inline void set_up();
 
 /*! \brief Uses BSplines to interpolate the value of erf(xp)
- * If xp out of range (-\cmaximum_sample_value \cmaximum_sample_value) then outputs -1 or 1
+ * If xp out of range (-\c_maximum_sample_value \c_maximum_sample_value) then outputs -1 or 1
  * @param xp input argument for erf(xp)
  * @return interpolated approximation of erf(xp)
  */
