@@ -21,8 +21,7 @@
 #include "stir/numerics/erf.h"
 #include "stir/numerics/FastErf.h"
 #include <vector>
-#include <math.h>
-
+#include "stir/common.h"
 START_NAMESPACE_STIR
 
 /*!
@@ -138,7 +137,7 @@ erfTests::test_FastErf()
 
   const float upper_samle_limit = 2 * e.get_maximum_sample_value() + 1;
   const float lower_samle_limit = -(upper_samle_limit);
-  double sample_period = M_PI/ 10000;  // Needed a number that wasn't regular and this worked...
+  double sample_period = _PI/ 10000;  // Needed a number that wasn't regular and this worked...
   // Test the FastErf interpolations 2* beyond the _maximum_sample_value.
   // The while (-_maximum_sample_value > xp) or (_maximum_sample_value < xp),
   // xp is clamped to -_maximum_sample_value or _maximum_sample_value
