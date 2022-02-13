@@ -54,10 +54,8 @@ private:
 
 public:
   explicit FastErf(const int num_samples = 1000, const float maximum_sample_value = 5)
-  {
-    this->_num_samples = num_samples;
-    this->maximum_sample_value = maximum_sample_value;
-  }
+      : _num_samples(num_samples), maximum_sample_value(maximum_sample_value )
+  {}
 
   //! Returns the number of erf samples
   inline int get_num_samples() const;
