@@ -1,4 +1,17 @@
+/*!
+  \file
+  \ingroup numerics
+  \brief Implementation of an erf interpolation
 
+  \author Robert Twyman
+  \author Alexander Whitehead
+*/
+/*
+    Copyright (C) 2022, University College London
+    This file is part of STIR.
+    SPDX-License-Identifier: Apache-2.0
+    See STIR/LICENSE.txt for details
+*/
 
 #include "stir/numerics/BSplines1DRegularGrid.h"
 #include "stir/numerics/erf.h"

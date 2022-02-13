@@ -1,13 +1,14 @@
 
 /*!
   \file
-  \ingroup FastErf
+  \ingroup numerics
   \brief Implementation of an erf interpolation
 
   \author Robert Twyman
+  \author Alexander Whitehead
 */
 /*
-    Copyright (C) 2022, UCL
+    Copyright (C) 2022, University College London
     This file is part of STIR.
     SPDX-License-Identifier: Apache-2.0
     See STIR/LICENSE.txt for details
