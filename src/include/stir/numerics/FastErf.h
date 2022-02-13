@@ -42,7 +42,7 @@ private:
 //  bool _is_setup = false;
 
   //! BSplines object using linear interpolation
-  BSpline::BSplines1DRegularGrid<double, double> spline;
+  BSpline::BSplines1DRegularGrid<double, double> _spline;
 
   /*! The upper bound value x value of erf(x) used in sampling. Default erf(x=5) ~= 1.
    * The negative \c_maximum_sample_value is used as the lower bound.

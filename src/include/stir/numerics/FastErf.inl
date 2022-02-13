@@ -31,7 +31,7 @@ set_up()
 
   // Setup BSplines
   BSpline::BSplines1DRegularGrid<double, double> spline(erf_values, BSpline::linear);
-  this->spline = spline;
+  this->_spline = spline;
 
   erf_values_vec = erf_values;
 //  this->_is_setup = true;
@@ -45,7 +45,7 @@ FastErf::get_erf_BSplines_interpolation(double xp) const
 #else
   xp = std::max(std::min(this->_maximum_sample_value, xp), -this->_maximum_sample_value);
 #endif
-  return this->spline.BSplines((xp + this->_maximum_sample_value) / this->_sampling_period);
+  return this->_spline.BSplines((xp + this->_maximum_sample_value) / this->_sampling_period);
 }
 
 
