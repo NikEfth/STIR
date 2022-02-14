@@ -6,6 +6,7 @@
 
   \author Robert Twyman
   \author Alexander Whitehead
+  \author Kris Thielemans
 */
 /*
     Copyright (C) 2022, University College London
@@ -27,13 +28,15 @@ START_NAMESPACE_STIR
    \brief The class acts as a potentially faster way to compute many erf values by precomputing the function at
    regularly spaced intervals. [BSplines, linear, nearest neighbour] interpolation methods are available.
    Note, nearest neighbour is fastest and BSplines slowest method.
+
+    Warning: \c set_up() has to be called before use, and also after any \c set* function. This is currently not checked.
 */
 class FastErf
 {
 private:
 
   //! The number of erf samples to take from -\c_maximum_sample_value to \c_maximum_sample_value
-  int _num_samples = 1000;
+  int _num_samples;
 
   //! The sampling period, computed as \c_maximum_sample_value / \c_num_samples)
   double _sampling_period;
@@ -44,10 +47,10 @@ private:
   //! BSplines object using linear interpolation
   BSpline::BSplines1DRegularGrid<double, double> _spline;
 
-  /*! The upper bound value x value of erf(x) used in sampling. Default erf(x=5) ~= 1.
+  /*! The upper bound value x value of erf(x) used in sampling. For larger values erf(x) ~= 1.
    * The negative \c_maximum_sample_value is used as the lower bound.
    */
-  double _maximum_sample_value = 5;
+  double _maximum_sample_value;
 
   //! a vector/list of stored erf values
   std::vector<double> erf_values_vec;

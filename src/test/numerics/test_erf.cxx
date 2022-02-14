@@ -21,7 +21,6 @@
 #include "stir/numerics/erf.h"
 #include "stir/numerics/FastErf.h"
 #include <vector>
-#include "stir/common.h"
 START_NAMESPACE_STIR
 
 /*!
