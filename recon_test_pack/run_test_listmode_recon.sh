@@ -135,7 +135,7 @@ for use_frame in true false; do
 
     echo "=== Reconstruct listmode data with cache loaded from the disk"
     export filename=my_output_t_lm_pr_seg2_${suffix}_with_old_cache
-    export cache=40000
+    #export cache=40
     export recompute_cache=0
     logfile=OSMAPOSL_test_lm_${suffix}_3.log
     if ${MPIRUN} OSMAPOSL OSMAPOSL_test_lm.par > "$logfile" 2>&1
