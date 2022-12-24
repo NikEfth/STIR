@@ -153,7 +153,7 @@ protected:
    */
   Succeeded cache_listmode_file();
 
-  Succeeded load_listmode_cache_file(unsigned int file_id);
+  Succeeded load_listmode_cache_file(unsigned int file_id, bool error_on_file_exists =  true);
   Succeeded write_listmode_cache_file(unsigned int file_id);
 
   unsigned int num_cache_files;

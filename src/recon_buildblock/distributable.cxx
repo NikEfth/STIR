@@ -596,15 +596,13 @@ void LM_distributable_computation(
 
     const float max_quotient = 10000.F;
 
-    if (output_image_ptr != NULL)
-      output_image_ptr->fill(0.F);
-
 std::vector< shared_ptr<DiscretisedDensity<3,float> > > local_output_image_sptrs;
 std::vector<double> local_log_likelihoods;
 std::vector<int> local_counts, local_count2s;
 std::vector<Bin> local_measured_bin, local_basic_bin, local_fwd_bin;
 std::vector<ProjMatrixElemsForOneBin> local_row;
 std::vector<float>measured_div_fwd;
+
 #ifdef STIR_OPENMP
 #pragma omp parallel shared(local_output_image_sptrs,local_row, local_log_likelihoods, local_counts, local_count2s, local_measured_bin, local_fwd_bin)
 #endif

@@ -83,7 +83,7 @@ set_defaults()
   this->max_ring_difference_num_to_process =-1;
 #endif
   this->PM_sptr.reset(new  ProjMatrixByBinUsingRayTracing());
-
+  num_cache_files = 0;
   skip_balanced_subsets = false;
 } 
  
@@ -332,15 +332,21 @@ PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Tar
 
 template<typename TargetT>
 Succeeded
-PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<TargetT>::load_listmode_cache_file(unsigned int file_id)
+PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<TargetT>::load_listmode_cache_file(unsigned int file_id,
+                                                                                                                bool error_on_file_exists)
 {
-    info("Reading cache from disk...");
+    record_cache.clear();
+    record_cache.reserve(this->cache_size);
+
     std::string cache_filename = "my_CACHE" + std::to_string(file_id) + ".bin";
     FilePath icache(cache_filename, false);
     icache.prepend_directory_name(this->get_cache_path());
 
-    record_cache.clear();
-    record_cache.reserve(this->cache_size);
+    if(!error_on_file_exists)
+        if(!FilePath::exists(icache.get_as_string()))
+            return Succeeded::no;
+
+    info("Reading cache from disk...");
 
     if (icache.is_regular_file())
     {
@@ -454,6 +460,7 @@ PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Tar
         {
             if(stop_caching)
                 break;
+            unsigned int curr_cached_events = 0;
 
 //            if (cached_events >= this->cache_size && cached_events != 0) // Open a new cache unless this is the first run
 //            {
@@ -472,17 +479,19 @@ PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Tar
                     stop_caching = true;
                     break;
                 }
-                // Cache the complete LM file -- Apply Time frames later
-//                if (record_sptr->is_time() && end_time > 0.01)
-//                {
-//                    current_time = record_sptr->time().get_time_in_secs();
-//                    if (this->do_time_frame && current_time >= end_time)
-//                    {
-//                        break; // get out of while loop
-//                    }
-//                    if (current_time < start_time)
-//                        continue;
-//                }
+
+                if (record_sptr->is_time() && end_time > 0.01)
+                {
+                    current_time = record_sptr->time().get_time_in_secs() * 0.001;
+                    if (this->do_time_frame && current_time >= end_time)
+                    {
+                        std::cout<< "time: " << current_time << std::endl;
+                        stop_caching = true;
+                        break; // get out of while loop
+                    }
+                    if (current_time < start_time)
+                        continue;
+                }
                 if (record_sptr->is_event() && record_sptr->event().is_prompt())
                 {
                     BinAndCorr tmp;
@@ -506,7 +515,10 @@ PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin<Tar
                     }
                     record_cache.push_back(tmp);
                     cached_events += 1;
+                    curr_cached_events +=1;
 
+                    if (curr_cached_events >= this->cache_size)
+                        break; // Go to a new cache file
 
                     if (record_cache.size() > 1 && record_cache.size()%500000L==0)
                         info( boost::format("Cached Prompt Events: %1% ") % record_cache.size());
@@ -702,13 +714,19 @@ actual_compute_subset_gradient_without_penalty(TargetT& gradient,
 
     if (this->cache_lm_file)
       {
-        // Get number of cache files in path
-
         int curr_frame = this->do_time_frame ? this->current_frame_num : -1;
 
-        for (uint icache = 0; icache < num_cache_files; ++icache)
+        unsigned int curr_cache = 0;
+
+        //just housekeeping
+        gradient.fill(0.F);
+
+        while(true)
         {
-            load_listmode_cache_file(icache);
+
+            if (load_listmode_cache_file(curr_cache, false) == Succeeded::no)
+                break;
+            curr_cache ++; // keep trying to load cache files and then stop
             LM_distributable_computation(this->PM_sptr,
                                          this->proj_data_info_sptr,
                                          &gradient, &current_estimate,
@@ -764,7 +782,7 @@ actual_compute_subset_gradient_without_penalty(TargetT& gradient,
            if(record.is_time())
            {
                //NE: multiplication with 0.001 should not be nessesary.
-               current_time = record.time().get_time_in_secs()*0.001;
+               current_time = record.time().get_time_in_secs();
                if (this->do_time_frame && current_time >= end_time)
                {
                    break; // get out of while loop
