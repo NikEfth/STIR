@@ -25,7 +25,7 @@ START_NAMESPACE_STIR
 
 
 CListEventROOT::
-CListEventROOT(const shared_ptr<const ProjDataInfo> &proj_data_info) :
+CListEventROOT(const shared_ptr<const ProjDataInfo> &proj_data_info_sptr) :
     CListEventCylindricalScannerWithDiscreteDetectors(shared_ptr<Scanner>(new Scanner(*proj_data_info_sptr->get_scanner_ptr())))
 {
 #ifdef STIR_ROOT_ROTATION_AS_V4
