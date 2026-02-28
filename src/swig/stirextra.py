@@ -4,21 +4,15 @@
 
 # This file is part of STIR.
 #
-# This file is free software; you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation; either version 2.1 of the License, or
-# (at your option) any later version.
-#
-# This file is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
+# SPDX-License-Identifier: Apache-2.0
 #
 # See STIR/LICENSE.txt for details
 
 import numpy
 import stir
-import exceptions
+import sys
+if sys.version_info < (3,):
+    import exceptions
 
 def get_bounding_box_indices(image):
     """
@@ -64,12 +58,15 @@ def get_physical_coordinates_for_grid(image):
     else:
         raise exceptions.NotImplementedError('need to handle dimensions different from 2 and 3')
 
-def to_numpy(image):
+def to_numpy(stirdata):
     """
-    return the data in a STIR image as a 3D numpy array
+    return the data in a STIR image or other Array as a numpy array
     """
-    # construct a numpy array using the "flat" STIR iterator
-    npimage=numpy.fromiter(image.flat(), dtype=numpy.float32);
-    # now reshape into ND array
-    npimage=npimage.reshape(image.shape());
-    return npimage
+    # construct a numpy array using as_array()
+    try:
+        return stirdata.as_array()
+    except:
+        # some other data-type where as_array() isn't supported yet
+        npstirdata=numpy.fromiter(stirdata.flat(), dtype=numpy.float32)
+        # now reshape into ND array
+        return npstirdata.reshape(stirdata.shape())

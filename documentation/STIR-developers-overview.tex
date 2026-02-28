@@ -16,10 +16,13 @@
 \textbf{{\huge STIR \\
 Overview for developers}}\\
 \textbf{Kris Thielemans}\\
-\textbf{\textit{version 2.0}}
-
+\textbf{\textit{version 6.3}}
 
 \end{center}
+
+SPDX-License-Identifier: Apache-2.0 AND License-ref-PARAPET-license
+
+See STIR/LICENSE.txt for details.
 
 \tableofcontents
 
@@ -56,6 +59,16 @@ This can produce an HTML version but also various other output
 formats (you can get e.g. RTF or LaTeX output by simply running 
 doxygen on the source files that come in the STIR distribution). 
 
+\subsection{Language support}
+STIR is written in C++ and currently requires C++-17, but it is compatible with newer versions of the C++ standard.
+We will enforce C++-20 from STIR 7.0 (possibly earlier).
+
+Python and MATLAB support is provided via \R2Lurl{http://www.swig.org/}{SWIG}. This means that Python/MATLAB interfaces follow
+the C++ classes closely, although some differences are required as these languages do not support templates for instance.
+Naming currently therefore often includes the type, e.g.~\texttt{FloatVoxelsOnCartesianGrid} corresponds to
+C++ \texttt{stir::VoxelsOnCartesianGrid<float>}. Python/MATLAB documentation is auto-generated from the C++
+documentation. This is not entirely satisfactory, but the best we can do at present.
+The SWIG interface files are located in \texttt{STIR/src/SWIG/*.i}.
 
 \section{
 General conventions}
@@ -127,31 +140,25 @@ projection data.
 
 
 In 3D PET, two data storage modes are generally used for a \textbf{segment}\footnote{{The 
-GE Advance file format does \textit{not} store the data per segment, 
-but per view. In addition, the segments are then mixed. However, 
+GE file formats does \textit{not} store the data per segment, 
+but per view. However, 
 once read into STIR, this organisation is no longer available. 
-\\
-The ECAT6 sinograms also have no easy way to understand which 
-ring-pair corresponds to which sinogram number for 3D PET. This 
-is the main reason why STIR does not attempt to read ECAT6 sinograms 
-directly, but leaves this to a separate conversion utility.}}
+}}
 \begin{itemize}
 \item 
 where the 3D data is ordered by \textbf{sinogram} (i.e \textbf{axial position}, \textbf{view 
-angle}, \textbf{tangential position}) (CTI terminology: \textit{Volume} mode) 
+angle}, \textbf{tangential position})
 (see Figure \ref{fig:sinogramstorage})
 \item where the 3D dataset is ordered by \textbf{view} (i.e \textbf{view angle}, \textbf{axial 
-position}, \textbf{tangential position}) (CTI terminology: \textit{View}  
-mode) (see Figure \ref{fig:viewgramstorage})
+position}, \textbf{tangential position})
+(see Figure \ref{fig:viewgramstorage})
 \end{itemize}
 
 This notation means that for a sinogram, the tangential position 
 runs fastest.\\
 In both modes, the 3D dataset has been stored in several segments 
 where the number of axial positions in each \textbf{segment} depends 
-on the \textbf{axial compression (span)}.\\
-Note that we find the CTI terminology confusing, so you will 
-see it nowhere in STIR except in this document.
+on the \textbf{axial compression (span)}.
 
 
 From both modes, 2 different types of 2D datasets can be obtained 
@@ -163,6 +170,18 @@ position.
 view.
 \end{itemize} 
 
+Note that since STIR version 6.0, Time-of-Flight (TOF) is supported. This introduces another
+index. However, \texttt{Sinogram} and \texttt{Viewgram} remain 2D objects, and \texttt{Segment*} 3D.
+This will also be the case once we have layers and energy windows.
+In STIR 5.2, we have therefore introduced new classes
+\texttt{SinogramIndices}, \texttt{ViewgramIndices}\footnote{Replacing \texttt{ViewSegmentNumbers} in previous versions of STIR.}
+and \texttt{SegmentIndices}, containing all ``other''
+indices necessary to get at the corresponding data. This means that the recommended coding style is now
+\begin{verbatim}
+ViewgramIndices vg_idx(view_num,segment_num);
+auto viewgram = proj_data.get_viewgram(vg_idx);
+\end{verbatim}
+In the next version of STIR, we will introduce extra methods to be able to conveniently loop over all viewgrams etc.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -202,9 +221,10 @@ In any case, currently STIR always assumes for each segment that
 the middle of the scanner corresponds to the middle of the set 
 of sinograms (taking into account the ring difference). 
 
-View 0 currently corresponds to a vertical projection (for some 
-scanners, this is not true. STIR currently ignores this, so will 
-reconstruct a rotated image). Finally, in STIR code, the first 
+Without view offset, view 0 currently corresponds to a vertical projection.
+It also assumes that the first detector is at $x=0$, $y=-R$ (i.e.
+on the top of the scanner).
+Finally, in STIR code, the first 
 ring of the scanner is the ring furthest from the bed. This corresponds 
 to how the data are stored in ECAT6,7 and Interfile files.
 
@@ -218,8 +238,8 @@ Configuration file}
 The file \textit{stir}/\textit{common.h} contains general configuration 
 info and tries to iron out some incompatibilities for certain 
 compilers. If you include any STIR \textit{.h} file, you are guaranteed 
-to have included \textit{stir}/\textit{common.h} as well, hence it should 
-never be included explicitly by a 'user'.
+to have included \textit{stir}/\textit{common.h} as well, hence there is usually no need
+to include it explicitly.
 
 \subsection{
 Namespace}
@@ -228,12 +248,9 @@ The STIR library has its own C++ namespace: \textit{stir}. All symbols
 are within this namespace. The effect of this is that conflicts 
 with other symbols are impossible (except when somebody else 
 is using the same namespace). STIR also uses sub-namespaces for 
-certain things. This usage will probably be expanded in the future.\\
-For older compilers, the namespace can be disabled (see \textit{stir}/\textit{common.h}). 
-For this reason, we have introduced some macros such as \textit{START\_NAMESPACE\_STIR.} You 
-could use the macros in your own code as well, although people 
-with a compiler that does not support namespace really should 
-upgrade.
+certain things. This usage will probably be expanded in the future.
+In most of the code, we use macros such as \textit{START\_NAMESPACE\_STIR}
+(originally used for older compilers).
 
 \subsection{
 Naming conventions }
@@ -249,6 +266,7 @@ a variable or member used to indicate the number of things starts
 with \textit{num}, e.g. \textit{num\_gates}.
 \item 
 the number of an item in a sequence end with \textit{num}, e.g. \textit{gate\_num}.
+\footnote{We are slowly starting to use \texttt{\_idx} in a few places as ``indices'' are a more general concept, and avoid confusion between the pre- and postfix use of \texttt{num}.}
 \item 
 a relative time (normally with respect to the scan start) end 
 with \textit{rel\_time}, e.g. \textit{tracer\_injection\_rel\_time}.
@@ -256,7 +274,7 @@ with \textit{rel\_time}, e.g. \textit{tracer\_injection\_rel\_time}.
 Pointers to an object called \textit{something\_ptr}. Currently there 
 is no naming distinction between shared pointers etc. This is 
 probably a bad idea. For new code, we recommend to use \textit{something\_sptr} 
-for shared pointers, and \textit{something\_aptr} for auto\_ptrs (see 
+for shared pointers, and \textit{something\_uptr} for unique\_ptrs (see 
 section \ref{sect:sharedptr}).
 \end{itemize}
 
@@ -296,9 +314,11 @@ To avoid unnecessary interdependencies between \textit{.h} files (and
 hence unnecessary rebuilds when modifying one \textit{.h} file), we 
 avoid including \textit{.h} files for 'supporting' classes as much 
 as possible. Instead, we only declare the classes needed, e.g. \textit{class 
-Bin;} instead of \textit{\#include stir/Bin.h.}
+Bin;} instead of \textit{\#include ``stir/Bin.h''.}
 
-
+Include files should not contain statements like \texttt{using namespace std;} or
+\texttt{using std::cos;} (exceptions for the latter are by intention in texttt{shared\_ptr.h}
+and texttt{format.h}).
 
 \subsection{
 Class definitions}
@@ -361,28 +381,47 @@ Note that the standard C++ library does not use this convention.
 Error handling }
 
 Problem reporting is via two functions \textit{error()} and \textit{warning()}. 
-Currently, \textit{error()} simply aborts the programme (after writing 
-a diagnostic message). \\
+Currently, \textit{error()} throws an exception. If you do not ``catch'' that
+exception, the program will be simply aborted (after writing 
+a diagnostic message). 
+
 In many places, validity of input arguments or of the state of 
 an object is checked by \textit{assert} macros. This code is only 
-compiled when the \textit{NDEBUG} preprocessor macro is not defined, 
+compiled when the \textit{NDEBUG} preprocessor macro is not defined (for isntance,
+when setting \texttt{CMAKE\_BUILD\_TYPE} to \texttt{Debug}), 
 such that a production version of the programs 
 is not slowed down. If an assertion is false, the program aborts 
 with info on the file and line number where the assertion failed.
 
-\subsection{
+\subsection{Diagnostics}
+Many function use the \textit{info()} function, which will write to
+\texttt{stdout}. It has a verbosity argument, such that more frequent
+diagnostic messages can be disabled, see \textit{Verbosity::set\_verbosity}.
+Setting the level to 0 suprresses all diagnostics output. This is a global setting.
+
+\subsection{C++ conventions}
+STIR uses C++-17 and is compatible with C++-20 to the best of our knowledge.
+For legacy reasons, we have some preprocessor 
+macros (see \textit{stir/common.h}) to define the stir namespace (see below).
+These should disappear at a 
+later development stage of the library.
+
+We use \texttt{override} for virtual functions in derived classes. This is clearer,
+less error-prone and avoids compiler warnings.
+
+STIR has a very long history. Lots of code was written pre-C++-11. We gradually simplify
+code when editing. This is definitely visible for code using iterators, which could be
+simplified by using \texttt{auto} as in this guide. It is a long term project to
+remove all compiler warnings from the code. Please help.
+
+\subsection{\label{ssect:AdvancedCppFeatures}
 Advanced (?) C++ features used}
 
-We attempted to follow the ANSI C++ standard as close as possible. 
-We expect to have some marginal problems with a 'strict' ANSI 
-C++ compiler, although there should now be very few cases(as 
-gcc warns about a lot of stuff). We have used some preprocessor 
-macros (see \textit{stir/common.h}) to isolate work-arounds for older 
-compilers. Ideally, all these \#ifdefs should disappear at a 
-later development stage of the library. We gradually give up 
-on supporting older compilers anyway.
 
+This section describes some C++ features used in STIR that might not be so familiar to
+non-C++ programmers.
 
+\subsubsection{Templates}
 The library uses templates very often. This allows us to write 
 'generic' code, independent of specific types. For instance, 
 multi-dimensional arrays correspond to 
@@ -395,26 +434,20 @@ class Array;
 
 To avoid linking problems, the templates which we use are explicitly 
 instantiated in the relevant \textit{.cxx} files. If a user needs 
-other types, (s)he will have to add the instantiations (or use 
-a more recent compiler).\\
+other types, (s)he will have to add the instantiations. In some cases,
+this is not necessary as all methods of a template class are inlined, or the
+actual definition is in a \textit{.txx} file that you can include.\\
 We do use partial class template specialisation in some places. 
 However, (very ugly) work-arounds are provided for compilers 
-that do not support this feature.\\
-Very occasionally we use member templates (in such a form that 
-it can be compiled by Visual C++, i.e. inline in the class definition). 
-It would be possible, but slightly tedious, to write explicit 
-code for older compilers, but we did not do this.\\
-Another fairly recent C++ feature that we use is Run Time Type 
+that do not support this feature (although these areee being gradually removed).\\
+Very occasionally we use member templates. 
+
+\subsubsection{Run Time Type Information}
+Another C++ feature that we use is Run Time Type 
 Information (RTTI). We almost exclusively use this to check validity 
 of pointer (or reference) casts down a hierarchy ('down-casting'). 
 See section \ref{sect:classhierarchies} 
-for an example. If a compiler does not support 
-RTTI, it would be possible to declare a (essentially empty) {\small dynamic\_cast} 
-template function such that the above code would compile. The 
-resulting programme would become inherently type-unsafe though, 
-and we recommend that you upgrade your compiler. Some code does 
-rely on explicit type checking, you would have to check this 
-in detail if you don't have RTTI.
+for an example.
 
 \subsubsection{
 Iterators}
@@ -428,7 +461,7 @@ the elements of a vector:
 \begin{verbatim}
 void f(vector<int>& v)
 {
-  for (vector<int>::iterator iter = v.begin(); iter != v.end(); ++iter)
+  for (auto iter = v.begin(); iter != v.end(); ++iter)
      *iter += 2;
 }
 \end{verbatim}
@@ -445,7 +478,7 @@ So, typical code in C++ would look as follows:
 template <class Container>
 void f(Container& v)
 {
-  for (Container::iterator iter = v.begin(); iter != v.end(); ++iter)
+  for (auto iter = v.begin(); iter != v.end(); ++iter)
      *iter += 2;
 }
 \end{verbatim}
@@ -464,7 +497,7 @@ can be done as follows
 template <int n, class elemT>
 void f(Array<n,elemT>& a)
 {
-  for (Array<n,elemT>::full_iterator iter = a.begin_all(); 
+  for (auto iter = a.begin_all(); 
        iter != a.end_all(); ++iter)
      *iter += 2;
 }
@@ -485,63 +518,61 @@ a += 2;
 \subsubsection{
 Shared pointers and other smart pointers \label{sect:sharedptr}}
 
-STIR uses the \textit{shared\_ptr} class considerably. Shared pointers 
+STIR uses the \texttt{shared\_ptr} class considerably. Shared pointers 
 are a specific type of 'smart pointers'. These have the advantage 
 that they essentially clean up after you. That is, you do not 
 have to call \textit{delete} on them. They are even exception proof 
 (something which you cannot achieve with an ordinary pointer). 
 Generally, the destructor of the smart pointer will make sure 
 that the object it points to is deleted (when appropriate).\\
-\textit{std::auto\_ptr} is a standard smart pointer class which is 
+\textit{std::unique\_ptr} is a standard smart pointer class which is 
 suitable for pointers to objects where there's only one smart 
-pointer for each object. Unfortunately, its syntax has been decided 
-rather late in ANSI C++ and its implementation requires some 
-advanced C++ features, leading to a non-standard implementation 
-of auto\_ptr in older compilers (including VC 6.0). For this 
-reason, we do not use this smart pointer class too much, and 
-generally use shared\_ptr instead. This is somewhat unfortunate 
+pointer for each object. Unfortunately, a lot of STIR was written
+pre-C++-11 and we do not use this smart pointer class too much, and 
+generally use \texttt{shared\_ptr} instead. This is somewhat unfortunate 
 as these two smart pointers are generally quite different concepts. 
-\\
-\textit{shared\_ptr} is a STIR (or boost) smart pointer class which 
+
+\texttt{shared\_ptr} is a wrapper around the \texttt{std} (or boost\footnote{Boost smart pointer are probably no longer supported, and will no longer be from STIR 6.1.}) smart pointer class which 
 is suitable when there are (potentially) more than one pointer 
 pointing to the same object. It keeps a reference count such 
 that the object is (only) deleted when the last shared pointer 
 that references it is destructed. \\
-Caveat: if you modify the object of 1 shared\_ptr, the change 
+\textbf{Caveat}: if you modify the object of 1 \texttt{shared\_ptr}, the change 
 obviously applies to all shared\_ptrs sharing that object.\\
-Caveat: if you assign an ordinary pointer to a shared\_ptr, you 
+\textbf{Caveat}: if you assign an ordinary pointer to a \texttt{shared\_ptr}, you 
 cannot delete the ordinary pointer anymore (it will be done by 
-the shared\_ptr). As a consequence, you cannot assign an ordinary 
-pointer twice to a shared\_ptr. It is thus better to go all the 
+the \texttt{shared\_ptr}). As a consequence, you cannot assign an ordinary 
+pointer twice to a \texttt{shared\_ptr}. It is thus better to go all the 
 way, and not have any ordinary pointers anymore.\\
-Caveat: do not initialise a shared\_ptr with a pointer that cannot/should 
+\textbf{Caveat}: do not initialise a \texttt{shared\_ptr} with a pointer that cannot/should 
 not be deleted. For instance, initialising it with the address 
 of a local variable, or even a reference, will cause a delete 
 on an object that is not allocated on the heap, and so probably 
-crash your program.\\
+crash your program.
+
 It is clear that smart pointers are very useful, but also somewhat 
 dangerous. For this reason, most classes do not return shared\_ptrs 
 to their members (even if they store one). Instead, they return 
 a pointer to a const object. This prevents a user of a class 
 to inadvertently change members of the class-object. This does 
-involve a performance penalty when the user then needs to create 
-a shared\_ptr himself. For example, you'll see code like this
+involve a memory/performance penalty when the user then needs to create 
+a \texttt{shared\_ptr} himself. For example, you'll see code like this
 
 \begin{verbatim}
 ProjData proj_data(...);
 ProjDataInfo const * proj_data_info_ptr = 
   proj_data.get_proj_data_info_ptr();
-shared_ptr<ProjDataInfo> new_proj_data_info_sptr = 
-  proj_data_info_ptr->clone();
+shared_ptr<ProjDataInfo> new_proj_data_info_sptr(proj_data_info_ptr->clone());
 // now do something with new_proj_data_info_sptr
 \end{verbatim}
 
 
 We provide the convenience function \textit{stir::is\_null\_ptr()} 
 to test if a pointer is `null', i.e. does not point to anything. \textit{is\_null\_ptr} 
-works with ordinary pointers, shared\_ptrs and auto\_ptrs. Use 
+works with ordinary pointers, shared\_ptrs and unique\_ptrs. Use 
 it to avoid that your code depends on what type of (smart) pointer 
-you are using.
+you are using. Note however that since C++-11, it is more convenient to use the
+automatic conversion to \texttt{bool}.
 
 \subsection{Generic functionality of STIR classes}
 This is a (very incomplete) section describing some functionality that
@@ -598,6 +629,12 @@ private:
   typedef ProjDataInfoCylindrical self_type;
 };
 \end{verbatim}
+
+\section{CUDA support}
+STIR 6.2 introduced first versions of some CUDA code. The include file
+\texttt{cuda\_utilities.h} contains some helpers classes to copy
+arrays to/from the device. This is still work-in-progress as objects
+need to be copied to be used by the rest of STIR.
 
 \section{
 Overview of classes}
@@ -729,8 +766,12 @@ extended to accommodate different file formats.
 \end{figure}
 
 
-Currently missing is support for fan-beam data.\\
-List-mode data is experimentally supported since version 1.2.
+Currently missing is support for fan-beam data.
+
+\subsection{
+List-mode data}
+
+This is supported as well for both PET and SPECT. See the \textit{Listmode} base-class and its hierarchy.
 
 \subsection{
 Data (or image) processor hierarchy}
@@ -873,22 +914,29 @@ concentrate on computing the 'independent' part of $P_{bv}$.
 \end{itemize}
 
 
-At the moment, we have two derived classes:
+At the moment, we have the following derived classes:
 \begin{itemize}
 \item 
-\textit{ProjMatrixByBinUsingRayTracing} uses essentially the same 
-implementation as \textit{ForwardProjectorByBinUsingRayTracing}, but 
+\texttt{ProjMatrixByBinUsingRayTracing} uses essentially the same 
+(although more flexible) implementation as the on-the-fly \texttt{ForwardProjectorByBinUsingRayTracing}, but 
 returns the row of the projection matrix. However, because symmetries 
 are not handled 'in-line', and elements need to be stored, using 
-a \textit{ProjMatrixByBinUsingRayTracing} object for forward projection 
-is not as efficient as using \textit{ForwardProjectorByBinUsingRayTracing}.
+a \texttt{ProjMatrixByBinUsingRayTracing} object for forward projection 
+is in some cases not as efficient as using \texttt{ForwardProjectorByBinUsingRayTracing}.
+\item
+\texttt{ProjMatrixByBinUsingInterpolation} implements the same as
+\texttt{BackProjectorByBinUsingInterpolation}, but is much slower to initialise.
 \item 
-\textit{ProjMatrixByBinFromFile} handles the case where the projection 
+\texttt{ProjMatrixByBinFromFile} handles the case where the projection 
 matrix is stored on disk [not distributed yet]. Because of the 
-support provided by \textit{ProjMatrixByBin}, only the 'independent' 
+support provided by \texttt{ProjMatrixByBin}, only the 'independent' 
 part of the projection matrix needs to be stored. Our current 
 implementation does not yet provide a very compact format for 
 storing the elements (although they are of course stored sparsely).
+\item
+\texttt{ProjMatrixByBinSPECTUB} is for parallel hole SPECT
+\item
+\texttt{ProjMatrixByBinPinholeSPECTUB} is for multi-pinhole SPECT
 \end{itemize}
 
 \begin{figure}[htbp]
@@ -929,8 +977,10 @@ of EMML with non-matching forward and back projectors, the 'gradient'
 that is computed is generally not the gradient of the
 log-likelihood that corresponds to the forward projector.
 However, one hopes that it still points towards the optimum.
-The corresponding objective function is implemented in the class
-\texttt{PoissonLogLikelihoodWithLinearModelForMeanAndProjData}.
+The corresponding objective function is implemented in the classes\\
+\texttt{PoissonLogLikelihoodWithLinearModelForMeanAndProjData} for
+projection data and \texttt{PoissonLogLikelihoodWithLinearModelForMeanAndListModeDataWithProjMatrixByBin}
+for list-mode data. There are classes for dynamic and gated data as well.
 
 There can be different objective function that use common operations.
 For instance, the objective function could implement a least squares
@@ -940,7 +990,10 @@ STIR implements those common operations using a separate class.
 As an example, projection operations are implemented via a pointer to a 
 \texttt{ProjectorByBinPair}, which in itself is a small
 class hierarchy using either a \texttt{ProjMatrixByBin} object, 
-or a \texttt{ForwardProjectorByBin/BackProjectorByBin} pair.
+or a \texttt{ForwardProjectorByBin} and \texttt{BackProjectorByBin} pair.
+
+Note that classes exist for Poisson log-likelihood for both (histogrammed)
+projection data and list-mode data.
 
 Often, one includes a penalty (or prior) in the objective function
 (see doxygen documentation for the class \texttt{GeneralisedPrior}).
@@ -960,7 +1013,7 @@ iterative algorithms are similar, and differ only in some minor
 steps. We do not discuss the actual 'leaves' of the Reconstruction 
 tree here.
 \\
-The tree starts at the abstract Reconstruction base class. Classes 
+The tree starts at the abstract \texttt{Reconstruction} base class. Classes 
 ending in ``\textit{Reconstruction}'' are abstract base classes for 
 a family of algorithms. Classes including the name of an algorithm 
 are concrete ones whose principal purpose is to implement the 
@@ -1007,7 +1060,7 @@ following example.
 
     int number; float a;
 
-    void initialise_keymap()
+    void initialise_keymap() override
     {
       base_type::initialise_keymap();
       this->parser.add_start_key("My Class Parameters");
@@ -1016,12 +1069,17 @@ following example.
       this->parser.add_stop_key("END My Class Parameters");
     }
 
-    void set_defaults()
+    void set_defaults() override
     {
       base_type::set_defaults();
       // specify defaults for the parameters in case they are not set.
       number = 1;
       a = 2.4F;
+    }
+    bool post_processing() override // will be renamed to post_parsing()
+    {
+      // do some checks and handle some extra variables
+      return false; // everything was ok
     }
   };
 
@@ -1051,7 +1109,7 @@ the file formats supported by STIR are stored in registries (see section \ref{se
 Currently recommended way to read an image is as follows:
 \begin{verbatim}
     typedef DiscretisedDensity<3,float> DataType ;
-    std::auto_ptr<DataType> density_aptr = read_from_file<DataType>(filename);
+    std::unique_ptr<DataType> density_aptr = read_from_file<DataType>(filename);
 \end{verbatim}
 You will have to include \texttt{stir/IO/read\_from\_file.h} for this to work. The function
 \texttt{read\_from\_file} will open the file, read an initial block of data, check
@@ -1060,8 +1118,12 @@ default registry, and use the first matching file format to read the data.
 
 For output, you can use
 \begin{verbatim}
-    typedef DiscretisedDensity<3,float> DataType ;
-    shared_ptr<OutputFileFormat<DataType > output_format_sptr =
+   write_to_file(filename, density);
+\end{verbatim}
+You will have to include \texttt{stir/IO/write\_to\_file.h} for this to work. This
+will write using the default output file format and is equivalent to the following:
+\begin{verbatim}
+    auto output_format_sptr =
        OutputFileFormat<DataType >::default_sptr();
    output_format_sptr->write_to_file(filename, density);
 \end{verbatim}
@@ -1096,40 +1158,18 @@ We currently have no easy way to copy all data across from one \texttt{ProjData}
 object to another. You will have to write an explicit loop over segments.
 
 \subsection{Dynamic or gated data}
-STIR 2.0 does not provide any direct facilities for reading 4D data (aside from
-the ECAT conversion utilities). Basic support should come in version 2.1.
-In the mean time, there is some preliminary functionality via the 
-\texttt{TimeFrameDefinitions} class and the \texttt{get\_time\_frame\_info}
-utility.
-
-\section{
-Registries of classes \label{sect:registries}}
-
-Several class hierarchies in STIR keep a registry of all \textit{leaf} 
-derived classes (i.e. classes at the end of the hierarchy). This 
-registry allows the user to select \textit{at run-time} which image 
-processor, projector, matrix, output file format etc. (s)he 
-wants to use. It is fairly easy to add your own leaf class to 
-the hierarchy such that it will be added to the registry\textit{.} How 
-to do this needs more documentation, but see the doxygen 
-documentation of classes \textit{RegisteredObject} and \textit{RegisteredParsingObject.} 
-\\
-The recommended way to add your own class (as always) is to take 
-a look at an existing leaf in the hierarchy, copy the files and 
-change what you need. Also make sure you new class gets linked 
-in by adding it to one of the *registries.cxx files. 
-\\
-See also section \ref{sect:extendingSTIR}.
-
+Data should have an \texttt{ExamInfo} with a \texttt{TimeFrameDefinitions} object.
+You can also use the \texttt{get\_time\_frame\_info} utility.
+There is no equivalenet yet for gating fractions.
 
 
 \section{
 Using class hierarchies \label{sect:classhierarchies}}
 
 The main strength of object-oriented programming is that you 
-can write code that is as generic as possible\footnote{{In C++, 
-another very powerful way to write generic code are templates. 
-But you will have to read about those somewhere else.}}. In STIR, 
+can write code that is as generic as possible\footnote{In C++, 
+another very powerful way to write generic code are templates,
+see section \ref{ssect:AdvancedCppFeatures}.}. In STIR, 
 we have tried to use this feature as much as possible (although 
 there are still remaining generalisations to be implemented). 
 This works by having a base class and a bunch of derived classes. 
@@ -1166,8 +1206,7 @@ copy an object of a base-class. This is solved by using the \textit{virtual
 copy constructor} idiom:
 
 \begin{verbatim}
-shared_ptr< DiscretisedDensity<3,float> > new_density_sptr =
-     density.clone();
+shared_ptr< DiscretisedDensity<3,float> > new_density_sptr(density.clone());
 \end{verbatim}
 
 This constructs an object of the same type as the given density.\\
@@ -1182,68 +1221,163 @@ Type Information (RTTI), preferably in the form of dynamic\_cast.
 template <typename elemT> 
 void f(DiscretisedDensity<3, elemT>& density)
 {
-  VoxelsOnCartesianGrid<elemT> * voxels_ptr =
+  auto voxels_ptr =
      dynamic_cast< VoxelsOnCartesianGrid<elemT> * > (&density);
-  if (voxels_ptr == NULL)
-     error("f: can only handle images of type VoxelsOnCartesianGrid\n");
+  if (!voxels_ptr)
+     error("f: can only handle images of type VoxelsOnCartesianGrid");
   ...
 }
 \end{verbatim}
 
 
-Note that dynamic\_cast of pointers allows easy checking if the 
+Note that \texttt{dynamic\_cast} of pointers allows easy checking if the 
 types matched. When using references, a non-matching type will 
 cause an exception to be thrown. There currently is no code in 
 STIR using/catching exceptions, so if you do not catch the exception 
 yourself, your program will abort mysteriously.
 
+
+\section{
+Registries of classes \label{sect:registries}}
+
+Several class hierarchies in STIR keep a registry of all \textit{leaf} 
+derived classes (i.e. classes at the end of the hierarchy). This 
+registry allows the user to select \textit{at run-time} which image 
+processor, projector, matrix, output file format etc. (s)he 
+wants to use. It is fairly easy to add your own leaf class to 
+the hierarchy such that it will be added to the registry. How 
+to do this is briefly described here, but see the doxygen 
+documentation of classes \texttt{RegisteredObject} and \texttt{RegisteredParsingObject}
+and the example below. 
+
+The recommended way to add your own class (as always) is to take 
+a look at an existing leaf in the hierarchy, copy the files and 
+change what you need. Also make sure you new class gets linked 
+in by adding it to one of existing \textbf{*registries.cxx} files, although
+it is probably better to put your own additions in separate files
+such that you can easily import a new version of STIR. 
+See section \ref{sect:extendingSTIR} for information on how to do that.
+
+\subsection{How does the STIR implementation of registries work?}
+The \texttt{RegisteredObject} class takes care of finding your class etc, but it
+will only do that if you have registered your own class. In an attempt to 
+avoid having to do this explicitly, we currently use the following scheme:
+\begin{itemize}
+\item creating a variable of type \texttt{yourClass::RegisterIt} will add \textit{yourClass}
+to the registry as long as this variable persists.
+\item we put that variable in a separate source file and declare it static. This means it
+will be ``initialised'' (\textit{i.e.} its constructor will be called, which actually does the
+registration) before the main program starts.
+\item the special source file needs to be added explicitly to the list of files to link with\footnote{
+If the file is added to a library, many linkers will think that it only contains variables which are
+not referenced by anything else, so will discard it from the linking, and hence the relevant 
+constructor will never be called.}. This is currently done by adding the file to the 
+\texttt{STIR\_REGISTRIES} CMake variable.
+\end{itemize}
+
 \section{
 Extending STIR with your own files \label{sect:extendingSTIR}}
+(See the section on using STIR in an external project in the User's Guide if you just want to
+use STIR functionality in your own work.)
 
-If you want to add your own files to the libraries, or have your 
-own main programs, you can of course set-up your own directory 
-and
+If you want to let STIR use your own
+extra classes, \textit{e.g.} if you
+added your own filter or prior and want to use that during reconstruction,
+you can do this while keeping your own work independent of the STIR sources.
+
 \begin{itemize}
-\item 
-make sure that your compiler finds the STIR include files in \textbf{STIR/include}
-\item 
-make sure that you link with \textbf{STIR/opt/libstir.a} (replace \textbf{opt} 
-with whatever value you used for the \textit{DEST} option of make)
-\item 
-make sure that you link with the *\_registries
-\end{itemize}
+\item Put all your files in a separate folder (which can be outside the STIR tree) or in \textbf{STIR/src/local} (the distribution 
+will never contain any files in that directory). Let us call your directory 
+\textbf{mySTIRext} as an example.
+\item Create a file \textbf{mySTIRext/extra\_stir\_dirs.cmake} with CMake statements,
+in particular a list of your subdirectories. For instance,
+\begin{verbatim}
+# add my include directory to compiler switches (or better: use target_include_directories)
+include_directories(include)
 
-All of this is made easier by using 
+# check CMakeLists in next directory
+# note: 2nd argument needs to have different name than any of the existing STIR libraries
+add_subdirectory(${STIR_LOCAL}/buildblock my_buildblock)
 
+# add registries (if you have any)
+list(APPEND STIR_REGISTRIES 
+  ${STIR_LOCAL}/buildblock/my_registries.cxx)
 
-{\small make install-all INSTALL\_PREFIX=/my/favorite/location}
+# add to list of libraries to include in linking
+list(APPEND STIR_LIBRARIES my_buildblock)
 
+# copy variables to PARENT_SCOPE
+SET( STIR_REGISTRIES ${STIR_REGISTRIES} PARENT_SCOPE)
+SET( STIR_LIBRARIES ${STIR_LIBRARIES} PARENT_SCOPE)
 
-Nevertheless, wipping up your own makefile is slightly painful, 
-so we provide the following alternative. \\
-Put all your files in (subdirectories of) \textbf{STIR/local} (the distribution 
-will never contain any files in that directory)\\
-Create a file \textbf{STIR/local/extra\_dirs.mk} containing a list 
-of your subdirectories (see \textbf{STIR/samples/local/} for an example). 
-This file (if it exists) will be imported by \textbf{STIR/Makefile}. 
-Put in each of your subdirectories one or more files called \textbf{lib.mk}, \textbf{exe.mk}, \textbf{test.mk} 
-which list all files you want to compile. These files have to 
+\end{verbatim}
+where \textbf{buildblock} is the name of your subdirectory and \textbf{my\_buildblock} is a name for the
+sub-directory where CMake will build the files (make sure the latter is different from any
+sub-directories in \textbf{STIR/src}).
+
+\item Put in each of your subdirectories a file called \textbf{CMakeLists.txt}
+which list all files you want to compile. This file have to 
 be in a specific (but simple) format. The easiest way to do this 
-is to copy for instance \textbf{buildblock/lib.mk}, \textbf{utilities/exe.mk}, \textbf{test/test.mk} 
-and change the list of filenames. \\
-The result will be that, when you use the relevant \textit{make} command 
-in the \textbf{STIR} directory,
-\begin{itemize}
-\item 
-all your files listed in one of the \textbf{lib.mk} will be included 
-in \textbf{libstir.a}
-\item 
-all your executables will be build and/or installed
-\item 
-all your test programs will be run
+is to copy for instance \textbf{buildblock/CMakeLists.txt}, \textbf{utilities/CMakeLists.txt}
+or  \textbf{test/CMakeLists.txt} and change the list of filenames. For instance, an extra library
+would be specified like this:
+\begin{verbatim}
+set(dir my_buildblock)
+set (dir_LIB_SOURCES ${dir}_LIB_SOURCES)
+
+set(${dir_LIB_SOURCES}
+   my_source1.cxx
+   my_source2.cxx
+)
+
+include(stir_lib_target)
+
+# Declare dependencies on other STIR libraries
+target_link_libraries($(dir) PUBLIC ${STIR_LIBRARIES})
+# Alternatively, only depend on a specific STIR libraries (NOT recommended as their names will change).
+# For instance to depend only on the "normal" STIR buildblock
+target_link_libraries($(dir) PUBLIC ${STIR_BUILDBLOCK_LIB})
+\end{verbatim}
+
+\item Re-run \textbf{CMake} and set the CMake variable \texttt{STIR\_LOCAL} to the directory where your
+\textbf{extra\_stir\_dirs.cmake} file (\textit{i.e.} \textbf{mySTIRext} in this example),
+the result will be that, when you (re-)build STIR, your files will be included in 
+the normal build/test process.
 \end{itemize}
 
+As discussed in section \ref{sect:registries}, if you implement a projector, filter
+or similar, you will need to add it to its relevant registry
+such that normal STIR utilities can use it at run-time.
+As an example, let us say you have written a class that implements
+a different output fileformat. You could create a new file \textbf{my\_registry.cxx} with
+content like this
+\begin{verbatim}
+#include "myOutputFileFormat.h"
+static myOutputFileFormat::RegisterIt dummy1;
+\end{verbatim}
+If you add that to the \texttt{STIR\_REGISTRIES} variable in your \textbf{extra\_stir\_dirs.cmake}
+as above, everything should work as expected.
 
+\textbf{WARNING:}\\
+Until we switch to C++-20, we use the \R2Lurl{https://github.com/fmtlib/fmt}{fmt} library to
+provide functionality similar to \texttt{std::format}. This is done using a git submodule
+and a header-only dependency.
+Please do \textbf{not} use \texttt{stir/format.h} in your header files (.h or .inl), as this
+will create a dependency on fmt include files for external programs, more than likely leading to
+compilation problems.
+
+\section{Contributing to STIR}
+See
+\R2Lurl{https://github.com/UCL/STIR/blob/master/CONTRIBUTING.md}{STIR/CONTRIBUTING.md}
+and
+\R2Lurl{https://github.com/UCL/STIR/blob/master/documentation/devel/README.md}{documentation/devel/README.md}
+for more information on editor settings etc.
+
+\subsection{Continuous integration testing}
+We use GitHub Actions and Appveyor for testing of every pull-request that was submitted on GitHub. PRs
+need to pass all checks before they will be accepted of course.
+To help debugging, we upload \texttt{recon\_test\_pack} log files as artefacts on
+GitHub if a job fails. You can see these in the Summary of every job that was triggered.
 
 \section{
 Conclusion}
@@ -1259,6 +1393,6 @@ itself (of course, the projectors do depend on the actual type
 of image, so you would have to write those).\\
 The STIR library allows maximal code re-use when implementing 
 new functionality. Its structure and its documentation features 
-make it into a unique resource for the PET community. 
+make it into a unique resource for the PET/SPECT community. 
 
 \end{document}
