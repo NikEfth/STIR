@@ -163,7 +163,7 @@ get_lengths() const
     // this should never happen?
     error("Discretised Density image wasn't regular!");
   }
-  return max_indices - min_indices;
+  return max_indices - min_indices + 1;
 }
 
 
