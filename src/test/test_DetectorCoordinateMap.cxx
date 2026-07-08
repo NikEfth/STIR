@@ -150,8 +150,8 @@ DetectionPosMapTests::run_coordinate_test_for_flat_first_bucket()
       bin.tangential_pos_num() = 0;
 
       //                check cartesian coordinates of detectors
-      proj_data_info_blocks_firstFlat_ptr->find_cartesian_coordinates_of_detection(b1, b2, bin);
-      proj_data_info_blocks_firstFlat_ptr->find_cartesian_coordinates_of_detection(b01, b02, bin0);
+      proj_data_info_blocks_firstFlat_ptr->get_bin_detector_locations_in_gantry_coordinates(b1, b2, bin);
+      proj_data_info_blocks_firstFlat_ptr->get_bin_detector_locations_in_gantry_coordinates(b01, b02, bin0);
 
       check_if_equal(b1.y(), b01.y(), " checking cartesian coordinate y1 are the same on a flat bucket");
       check_if_equal(b2.y(), b02.y(), " checking cartesian coordinate y2 are the same on a flat bucket");

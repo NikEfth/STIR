@@ -71,7 +71,7 @@ CListEventScannerWithDiscreteDetectors<ProjDataInfoT>::get_LOR() const
   assert(det_pos.pos2().radial_coord() == 0);
 
   // TODO we're using an obsolete function here which uses a different coordinate system
-  this->get_uncompressed_proj_data_info_sptr()->find_cartesian_coordinates_given_scanner_coordinates(
+  this->get_uncompressed_proj_data_info_sptr()->get_det_pair_locations_in_gantry_coordinates(
       coord_1,
       coord_2,
       det_pos.pos1().axial_coord(),

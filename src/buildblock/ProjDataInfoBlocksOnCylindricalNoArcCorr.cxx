@@ -93,15 +93,16 @@ ProjDataInfoBlocksOnCylindricalNoArcCorr::parameter_info() const
 
 //! warning Use crystal map
 Succeeded
-ProjDataInfoBlocksOnCylindricalNoArcCorr::find_scanner_coordinates_given_cartesian_coordinates(
-    int& det1, int& det2, int& ring1, int& ring2, const CartesianCoordinate3D<float>& c1, const CartesianCoordinate3D<float>& c2)
+ProjDataInfoBlocksOnCylindricalNoArcCorr::get_det_pair_for_gantry_coordinate_pair(
+    int& det1, int& det2, int& ring1, int& ring2, 
+    const CartesianCoordinate3D<float>& c1, const CartesianCoordinate3D<float>& c2)
     const
 {
 
   DetectionPosition<> det_pos1;
   DetectionPosition<> det_pos2;
-  if (get_scanner_ptr()->find_detection_position_given_cartesian_coordinate(det_pos1, c1 + this->z_shift) == Succeeded::no
-      || get_scanner_ptr()->find_detection_position_given_cartesian_coordinate(det_pos2, c2 + this->z_shift) == Succeeded::no)
+  if (get_scanner_ptr()->find_detection_position_given_cartesian_coordinate(det_pos1, c1) == Succeeded::no
+      || get_scanner_ptr()->find_detection_position_given_cartesian_coordinate(det_pos2, c2) == Succeeded::no)
     {
       return Succeeded::no;
     }

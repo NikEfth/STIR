@@ -203,7 +203,7 @@ TestProjDataInfoSubsets::construct_projector_pair(const shared_ptr<const ProjDat
   proj_matrix_sptr->set_do_symmetry_swap_s(use_other_symmetries);
   proj_matrix_sptr->set_do_symmetry_swap_segment(use_other_symmetries);
   auto proj_pair_sptr = std::make_shared<ProjectorByBinPairUsingProjMatrixByBin>(proj_matrix_sptr);
-
+  
   proj_pair_sptr->set_up(template_projdatainfo_sptr, template_image_sptr);
   return proj_pair_sptr;
 }

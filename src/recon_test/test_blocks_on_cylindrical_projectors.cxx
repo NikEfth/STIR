@@ -663,11 +663,11 @@ BlocksTests::run_map_orientation_test(ForwardProjectorByBin& forw_projector1, Fo
       proj_data_info_blocks_reord_sptr->get_bin_for_det_pos_pair(bin2, dp2);
 
       //        //                check cartesian coordinates of detectors
-      proj_data_info_blocks_sptr->find_cartesian_coordinates_of_detection(b1, b2, bin1);
-      proj_data_info_blocks_reord_sptr->find_cartesian_coordinates_of_detection(rb1, rb2, bin1);
+      proj_data_info_blocks_sptr->get_bin_detector_locations_in_gantry_coordinates(b1, b2, bin1);
+      proj_data_info_blocks_reord_sptr->get_bin_detector_locations_in_gantry_coordinates(rb1, rb2, bin1);
 
       //        now get det_pos from the reordered coord ir shouls be different from the one obtained for bin and bin1
-      proj_data_info_blocks_sptr->find_bin_given_cartesian_coordinates_of_detection(binR1, rb1, rb2);
+      proj_data_info_blocks_sptr->get_bin_for_gantry_coordinate_pair(binR1, rb1, rb2);
       proj_data_info_blocks_sptr->get_det_pos_pair_for_bin(dpR1, binR1);
 
       check_if_equal(projdata1->get_bin_value(bin1),

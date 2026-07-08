@@ -574,8 +574,8 @@ ProjDataInfoTests::run_Blocks_DOI_test()
             check_if_equal(Bring2, BDring2, "");
 
             //                checkcartesian coordinates of detectors
-            proj_data_info_blocks_doi0_ptr->find_cartesian_coordinates_of_detection(b1, b2, bin);
-            proj_data_info_blocks_doi01_ptr->find_cartesian_coordinates_of_detection(bd1, bd2, bin);
+            proj_data_info_blocks_doi0_ptr->get_bin_detector_locations_in_gantry_coordinates(b1, b2, bin);
+            proj_data_info_blocks_doi01_ptr->get_bin_detector_locations_in_gantry_coordinates(bd1, bd2, bin);
 
             //               set_tolerance(10E-2);
             check(b1 != bd1, "detector position should be different with different DOIs");
@@ -702,9 +702,9 @@ ProjDataInfoTests::run_coordinate_test()
             check_if_equal(Bring2, Cring2, "");
 
             //                test round trip from detector ID to coordinates and from cordinates to detecto IDs
-            proj_data_info_blocks_ptr->find_cartesian_coordinates_given_scanner_coordinates(
+            proj_data_info_blocks_ptr->get_det_pair_locations_in_gantry_coordinates(
                 roundt1, roundt2, Bring1, Bring2, Bdet1, Bdet2);
-            proj_data_info_blocks_ptr->find_bin_given_cartesian_coordinates_of_detection(binRT, roundt1, roundt2);
+            proj_data_info_blocks_ptr->get_bin_for_gantry_coordinate_pair(binRT, roundt1, roundt2);
             proj_data_info_blocks_ptr->get_det_pair_for_bin(RTdet1, RTring1, RTdet2, RTring2, bin);
 
             check_if_equal(Bdet1, RTdet1, "Roundtrip from detector A ID to coordinates and from cordinates to detector A ID");
@@ -713,8 +713,8 @@ ProjDataInfoTests::run_coordinate_test()
             check_if_equal(Bring2, RTring2, "Roundtrip from ring B ID to coordinates and from cordinates to ring B ID");
 
             //                checkcartesian coordinates of detectors
-            proj_data_info_cyl_ptr->find_cartesian_coordinates_of_detection(c1, c2, bin);
-            proj_data_info_blocks_ptr->find_cartesian_coordinates_of_detection(b1, b2, bin);
+            proj_data_info_cyl_ptr->get_bin_detector_locations_in_gantry_coordinates(c1, c2, bin);
+            proj_data_info_blocks_ptr->get_bin_detector_locations_in_gantry_coordinates(b1, b2, bin);
 
             check_if_equal(b1, c1, "");
             check_if_equal(b2, c2, "");
@@ -871,8 +871,8 @@ ProjDataInfoTests::run_coordinate_test_for_realistic_scanner()
             check_if_equal(Bring2, Cring2, "");
 
             //                check cartesian coordinates of detectors
-            proj_data_info_cyl_ptr->find_cartesian_coordinates_of_detection(c1, c2, bin);
-            proj_data_info_blocks_ptr->find_cartesian_coordinates_of_detection(b1, b2, bin);
+            proj_data_info_cyl_ptr->get_bin_detector_locations_in_gantry_coordinates(c1, c2, bin);
+            proj_data_info_blocks_ptr->get_bin_detector_locations_in_gantry_coordinates(b1, b2, bin);
 
             // we expect to be differences of the order of the mm in x and y due to the difference in geometry
 

@@ -41,7 +41,7 @@ find_in_detection_points_vector(const CartesianCoordinate3D<float>& gantry_coord
 #pragma omp critical(SCATTERESTIMATIONFINDDETECTIONPOINTS)
   {
     std::vector<CartesianCoordinate3D<float>>::const_iterator iter
-        = std::find(detection_points_in_gantry_coords_vector.begin(), detection_points_in_gantry_coords_vector.end(), coord);
+        = std::find(detection_points_in_gantry_coords_vector.begin(), detection_points_in_gantry_coords_vector.end(), gantry_coord);
     if (iter != detection_points_in_gantry_coords_vector.end())
       {
         ret_value = iter - detection_points_in_gantry_coords_vector.begin();
@@ -51,7 +51,7 @@ find_in_detection_points_vector(const CartesianCoordinate3D<float>& gantry_coord
         if (detection_points_in_gantry_coords_vector.size() == static_cast<std::size_t>(this->total_detectors))
           error("More detection points than we think there are!\n");
 
-        detection_points_in_gantry_coords_vector.push_back(coord);
+        detection_points_in_gantry_coords_vector.push_back(gantry_coord);
         ret_value = detection_points_in_gantry_coords_vector.size() - 1;
       }
   }
@@ -69,7 +69,7 @@ ScatterSimulation::find_detectors(unsigned& det_num_A, unsigned& det_num_B, cons
   const auto* ptr = dynamic_cast<const ProjDataInfoBlocksOnCylindricalNoArcCorr*>(proj_data_info_sptr.get());
   if (ptr)
     {
-      ptr->find_cartesian_coordinates_of_detection(detector_coord_A, detector_coord_B, bin);
+      ptr->get_bin_detector_locations_in_gantry_coordinates(detector_coord_A, detector_coord_B, bin);
     }
   else
     {
@@ -86,7 +86,6 @@ ScatterSimulation::find_detectors(unsigned& det_num_A, unsigned& det_num_B, cons
 
   det_num_A =
     this->find_in_detection_points_vector(detector_coord_A);
-  // ORIGINTODO: ^
   det_num_B =
     this->find_in_detection_points_vector(detector_coord_B);
 }

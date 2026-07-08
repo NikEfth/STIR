@@ -155,7 +155,7 @@ public:
   */
 
   // This version uses the coordinate map
-  virtual void find_cartesian_coordinates_given_scanner_coordinates(CartesianCoordinate3D<float>& coord_1,
+  void get_det_pair_locations_in_gantry_coordinates(CartesianCoordinate3D<float>& coord_1,
                                                                     CartesianCoordinate3D<float>& coord_2,
                                                                     const int Ring_A,
                                                                     const int Ring_B,

@@ -28,6 +28,7 @@
 #include "stir/Bin.h"
 #include "stir/LORCoordinates.h"
 #include "stir/round.h"
+#include "stir/format.h"
 #include "stir/warning.h"
 #include "stir/error.h"
 #include "stir/recon_buildblock/ProjMatrixElemsForOneBin.h"
@@ -111,9 +112,9 @@ ProjMatrixByBinUsingInterpolation::set_up(
 
   CartesianCoordinate3D<float> origin = image_info_ptr->get_origin();
   if (origin.x() != 0 or origin.y() != 0) {
-    error(boost::format(
-      "ProjMatrixByBinUsingInterpolation expects a transaxially-centred image (%s,%s)\n")
-      % origin.x() % origin.y());
+    error(format(
+      "ProjMatrixByBinUsingInterpolation expects a transaxially-centred image {},{}"
+      , origin.x(), origin.y()));
   }
  
   densel_range = image_info_ptr->get_index_range();
