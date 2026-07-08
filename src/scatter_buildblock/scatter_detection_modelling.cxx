@@ -29,9 +29,8 @@
 #include <iostream>
 
 START_NAMESPACE_STIR
-unsigned 
-ScatterSimulation::
-find_in_detection_points_vector(const CartesianCoordinate3D<float>& gantry_coord) const
+unsigned
+ScatterSimulation::find_in_detection_points_vector(const CartesianCoordinate3D<float>& gantry_coord) const
 {
 #ifndef NDEBUG
   if (!this->_already_set_up)
@@ -40,8 +39,8 @@ find_in_detection_points_vector(const CartesianCoordinate3D<float>& gantry_coord
   unsigned int ret_value = 0;
 #pragma omp critical(SCATTERESTIMATIONFINDDETECTIONPOINTS)
   {
-    std::vector<CartesianCoordinate3D<float>>::const_iterator iter
-        = std::find(detection_points_in_gantry_coords_vector.begin(), detection_points_in_gantry_coords_vector.end(), gantry_coord);
+    std::vector<CartesianCoordinate3D<float>>::const_iterator iter = std::find(
+        detection_points_in_gantry_coords_vector.begin(), detection_points_in_gantry_coords_vector.end(), gantry_coord);
     if (iter != detection_points_in_gantry_coords_vector.end())
       {
         ret_value = iter - detection_points_in_gantry_coords_vector.begin();
@@ -84,10 +83,8 @@ ScatterSimulation::find_detectors(unsigned& det_num_A, unsigned& det_num_B, cons
         }
     }
 
-  det_num_A =
-    this->find_in_detection_points_vector(detector_coord_A);
-  det_num_B =
-    this->find_in_detection_points_vector(detector_coord_B);
+  det_num_A = this->find_in_detection_points_vector(detector_coord_A);
+  det_num_B = this->find_in_detection_points_vector(detector_coord_B);
 }
 
 float
@@ -170,21 +167,13 @@ ScatterSimulation::detection_efficiency_no_scatter(const unsigned det_num_A, con
                                            ? detection_efficiency(511.F)
                                            : (info("Zero detection efficiency for 511. Will normalise to 1"), 1.F);
     }
-  const CartesianCoordinate3D<float>& detector_coord_A =
-    detection_points_in_gantry_coords_vector[det_num_A];
-  const CartesianCoordinate3D<float>& detector_coord_B =
-    detection_points_in_gantry_coords_vector[det_num_B];
-  const CartesianCoordinate3D<float> 
-    detA_to_ring_center(0,-detector_coord_A[2],-detector_coord_A[3]);
-  const CartesianCoordinate3D<float> 
-    detB_to_ring_center(0,-detector_coord_B[2],-detector_coord_B[3]);
-  const float rAB_squared=static_cast<float>(norm_squared(detector_coord_A-detector_coord_B));
-  const float cos_incident_angle_A = static_cast<float>(
-    cos_angle(detector_coord_B - detector_coord_A,
-              detA_to_ring_center)) ;
-  const float cos_incident_angle_B = static_cast<float>(
-    cos_angle(detector_coord_A - detector_coord_B,
-              detB_to_ring_center)) ;
+  const CartesianCoordinate3D<float>& detector_coord_A = detection_points_in_gantry_coords_vector[det_num_A];
+  const CartesianCoordinate3D<float>& detector_coord_B = detection_points_in_gantry_coords_vector[det_num_B];
+  const CartesianCoordinate3D<float> detA_to_ring_center(0, -detector_coord_A[2], -detector_coord_A[3]);
+  const CartesianCoordinate3D<float> detB_to_ring_center(0, -detector_coord_B[2], -detector_coord_B[3]);
+  const float rAB_squared = static_cast<float>(norm_squared(detector_coord_A - detector_coord_B));
+  const float cos_incident_angle_A = static_cast<float>(cos_angle(detector_coord_B - detector_coord_A, detA_to_ring_center));
+  const float cos_incident_angle_B = static_cast<float>(cos_angle(detector_coord_A - detector_coord_B, detB_to_ring_center));
 
   // 0.75 is due to the volume of the pyramid approximation!
   return 1. / (0.75 / 2. / _PI * rAB_squared / detector_efficiency_no_scatter / (cos_incident_angle_A * cos_incident_angle_B));

@@ -96,40 +96,37 @@ ProjMatrixByBinUsingInterpolation::post_processing()
 void
 ProjMatrixByBinUsingInterpolation::set_up(
     const shared_ptr<const ProjDataInfo>& proj_data_info_ptr_v,
-    const shared_ptr<const DiscretisedDensity<3,float> >& density_info_sptr_v // TODO should be Info only
-    )
+    const shared_ptr<const DiscretisedDensity<3, float>>& density_info_sptr_v // TODO should be Info only
+)
 {
   ProjMatrixByBin::set_up(proj_data_info_ptr_v, density_info_sptr);
 
-  proj_data_info_sptr= proj_data_info_ptr_v; 
+  proj_data_info_sptr = proj_data_info_ptr_v;
   density_info_sptr = density_info_sptr_v;
 
-  const VoxelsOnCartesianGrid<float> * image_info_ptr =
-    dynamic_cast<const VoxelsOnCartesianGrid<float>*> (density_info_sptr.get());
+  const VoxelsOnCartesianGrid<float>* image_info_ptr = dynamic_cast<const VoxelsOnCartesianGrid<float>*>(density_info_sptr.get());
 
   if (image_info_ptr == NULL)
     error("ProjMatrixByBinUsingInterpolation initialised with a wrong type of DiscretisedDensity\n");
 
   CartesianCoordinate3D<float> origin = image_info_ptr->get_origin();
-  if (origin.x() != 0 or origin.y() != 0) {
-    error(format(
-      "ProjMatrixByBinUsingInterpolation expects a transaxially-centred image {},{}"
-      , origin.x(), origin.y()));
-  }
- 
+  if (origin.x() != 0 or origin.y() != 0)
+    {
+      error(format("ProjMatrixByBinUsingInterpolation expects a transaxially-centred image {},{}", origin.x(), origin.y()));
+    }
+
   densel_range = image_info_ptr->get_index_range();
   voxel_size = image_info_ptr->get_voxel_size();
 
-  symmetries_sptr.reset(
-    new DataSymmetriesForBins_PET_CartesianGrid(proj_data_info_sptr,
-                                                density_info_sptr,
-                                                do_symmetry_90degrees_min_phi,
-                                                do_symmetry_180degrees_min_phi,
-						do_symmetry_swap_segment,
-						do_symmetry_swap_s,
-						do_symmetry_shift_z));
+  symmetries_sptr.reset(new DataSymmetriesForBins_PET_CartesianGrid(proj_data_info_sptr,
+                                                                    density_info_sptr,
+                                                                    do_symmetry_90degrees_min_phi,
+                                                                    do_symmetry_180degrees_min_phi,
+                                                                    do_symmetry_swap_segment,
+                                                                    do_symmetry_swap_s,
+                                                                    do_symmetry_shift_z));
 
-  if (dynamic_cast<const ProjDataInfoCylindrical*>(proj_data_info_sptr.get())==0)
+  if (dynamic_cast<const ProjDataInfoCylindrical*>(proj_data_info_sptr.get()) == 0)
     error("ProjMatrixByBinUsingInterpolation needs ProjDataInfoCylindrical for jacobian\n");
   jacobian = JacobianForIntBP(&(proj_data_info_cyl()), use_exact_Jacobian_now);
 
@@ -270,8 +267,8 @@ void
 ProjMatrixByBinUsingInterpolation::calculate_proj_matrix_elems_for_one_bin(ProjMatrixElemsForOneBin& lor) const
 {
   const Bin& bin = lor.get_bin();
-  assert(bin.segment_num() >= proj_data_info_sptr->get_min_segment_num());    
-  assert(bin.segment_num() <= proj_data_info_sptr->get_max_segment_num());    
+  assert(bin.segment_num() >= proj_data_info_sptr->get_min_segment_num());
+  assert(bin.segment_num() <= proj_data_info_sptr->get_max_segment_num());
 
   assert(lor.size() == 0);
 
@@ -302,18 +299,14 @@ ProjMatrixByBinUsingInterpolation::calculate_proj_matrix_elems_for_one_bin(ProjM
     */
     BasicCoordinate<3, int> min_index, max_index;
     density_info_sptr->get_regular_range(min_index, max_index);
-    CartesianCoordinate3D<float> min_gantry_coords =
-      proj_data_info_sptr->get_gantry_coordinates_for_physical_coordinates(
+    CartesianCoordinate3D<float> min_gantry_coords = proj_data_info_sptr->get_gantry_coordinates_for_physical_coordinates(
         density_info_sptr->get_physical_coordinates_for_indices(min_index));
-    CartesianCoordinate3D<float> max_gantry_coords =
-      proj_data_info_sptr->get_gantry_coordinates_for_physical_coordinates(
+    CartesianCoordinate3D<float> max_gantry_coords = proj_data_info_sptr->get_gantry_coordinates_for_physical_coordinates(
         density_info_sptr->get_physical_coordinates_for_indices(max_index));
-    const float max_radius = std::max({
-      -min_gantry_coords.x(), -min_gantry_coords.y(),
-      max_gantry_coords.x(), max_gantry_coords.y()});
+    const float max_radius
+        = std::max({ -min_gantry_coords.x(), -min_gantry_coords.y(), max_gantry_coords.x(), max_gantry_coords.y() });
 
-    const float z_width_of_TOR =
-      proj_data_info_sptr->get_sampling_in_m(bin);
+    const float z_width_of_TOR = proj_data_info_sptr->get_sampling_in_m(bin);
 
     // Get the LOR for bin, but a radius to just cover the FOV
     LORInAxialAndNoArcCorrSinogramCoordinates<float> lor;
@@ -322,22 +315,18 @@ ProjMatrixByBinUsingInterpolation::calculate_proj_matrix_elems_for_one_bin(ProjM
     find_LOR_intersections_with_cylinder(reduced_fov_lor, LORAs2Points<float>(lor), max_radius);
 
     // now find the z extents in gantry coordinates and convert into indices
-    float min_z_in_gantry_coords = std::min(
-      reduced_fov_lor.p1().z(), reduced_fov_lor.p2().z());
-    float max_z_in_gantry_coords = std::max(
-      reduced_fov_lor.p1().z(), reduced_fov_lor.p2().z());
+    float min_z_in_gantry_coords = std::min(reduced_fov_lor.p1().z(), reduced_fov_lor.p2().z());
+    float max_z_in_gantry_coords = std::max(reduced_fov_lor.p1().z(), reduced_fov_lor.p2().z());
     // NB: This could just be z_width_of_TOR/2, but old implementation preferred
     // not to divide to add a "safety margin", so replicating here (AG)
     min_z_in_gantry_coords -= z_width_of_TOR;
     max_z_in_gantry_coords += z_width_of_TOR;
-    min1 = floor(
-      density_info_sptr->get_index_coordinates_for_physical_coordinates(
+    min1 = floor(density_info_sptr->get_index_coordinates_for_physical_coordinates(
         proj_data_info_sptr->get_physical_coordinates_for_gantry_coordinates(
-          CartesianCoordinate3D<float>(min_z_in_gantry_coords, 0, 0)))[1]);
-    max1 = ceil(
-      density_info_sptr->get_index_coordinates_for_physical_coordinates(
+            CartesianCoordinate3D<float>(min_z_in_gantry_coords, 0, 0)))[1]);
+    max1 = ceil(density_info_sptr->get_index_coordinates_for_physical_coordinates(
         proj_data_info_sptr->get_physical_coordinates_for_gantry_coordinates(
-          CartesianCoordinate3D<float>(max_z_in_gantry_coords, 0, 0)))[1]);
+            CartesianCoordinate3D<float>(max_z_in_gantry_coords, 0, 0)))[1]);
   }
   /* we loop over all coordinates, but for optimisation do the following:
      In each dimension, we ASSUME that the non-zero range is CONNECTED.
@@ -382,19 +371,17 @@ ProjMatrixByBinUsingInterpolation::calculate_proj_matrix_elems_for_one_bin(ProjM
           const int min3 = std::max(first_min3, -first_max3);
           const int max3 = std::min(-first_min3, first_max3);
 #endif
-	  found_nonzero3 = false;
-	  for (c[3]=min3; c[3]<=max3; ++c[3])
-	    {
-	      const CartesianCoordinate3D<float> coords = 
-          proj_data_info_sptr->get_gantry_coordinates_for_physical_coordinates(
-            density_info_sptr->get_physical_coordinates_for_indices(c));
-	      const float element_value =
-		get_element(bin, coords);
-	      if (element_value>0)
-		{
-		  found_nonzero3=true;
-		  lor.push_back(ProjMatrixElemsForOneBin::value_type(c, element_value));
-		}
+          found_nonzero3 = false;
+          for (c[3] = min3; c[3] <= max3; ++c[3])
+            {
+              const CartesianCoordinate3D<float> coords = proj_data_info_sptr->get_gantry_coordinates_for_physical_coordinates(
+                  density_info_sptr->get_physical_coordinates_for_indices(c));
+              const float element_value = get_element(bin, coords);
+              if (element_value > 0)
+                {
+                  found_nonzero3 = true;
+                  lor.push_back(ProjMatrixElemsForOneBin::value_type(c, element_value));
+                }
 #ifndef __PMByBinElement_SLOW__
               else if (found_nonzero3)
                 break;

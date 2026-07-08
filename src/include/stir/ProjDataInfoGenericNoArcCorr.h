@@ -156,12 +156,12 @@ public:
 
   // This version uses the coordinate map
   void get_det_pair_locations_in_gantry_coordinates(CartesianCoordinate3D<float>& coord_1,
-                                                                    CartesianCoordinate3D<float>& coord_2,
-                                                                    const int Ring_A,
-                                                                    const int Ring_B,
-                                                                    const int det1,
-                                                                    const int det2,
-                                                                    const int timing_pos_num = 0) const override;
+                                                    CartesianCoordinate3D<float>& coord_2,
+                                                    const int Ring_A,
+                                                    const int Ring_B,
+                                                    const int det1,
+                                                    const int det2,
+                                                    const int timing_pos_num = 0) const override;
 
   //@}
 protected:

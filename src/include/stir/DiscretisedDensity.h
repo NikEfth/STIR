@@ -252,16 +252,13 @@ public:
   // get_image_central_index() const;
 
   //! Get the "most-central" voxel
-  virtual BasicCoordinate<num_dimensions,float>
-  get_image_centre_in_index_coordinates() const = 0;
+  virtual BasicCoordinate<num_dimensions, float> get_image_centre_in_index_coordinates() const = 0;
 
   //! Get the average location of image sample points in physical coordinates
-  virtual CartesianCoordinate3D<float>
-  get_image_centre_in_physical_coordinates() const = 0;
+  virtual CartesianCoordinate3D<float> get_image_centre_in_physical_coordinates() const = 0;
 
   //! Get the average location of image sample points in LPS patient coordinates
-  virtual CartesianCoordinate3D<float>
-  get_image_centre_in_LPS_coordinates() const = 0;
+  virtual CartesianCoordinate3D<float> get_image_centre_in_LPS_coordinates() const = 0;
 
   //@}
 

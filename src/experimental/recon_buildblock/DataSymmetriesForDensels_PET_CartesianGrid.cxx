@@ -81,21 +81,16 @@ find_relation_between_coordinate_systems(int& num_planes_per_scanner_ring,
         if (fabs(num_planes_per_axial_pos_float - num_planes_per_axial_pos[segment_num]) > 1.E-5)
           error("DataSymmetriesForDensels_PET_CartesianGrid can currently only support z-grid spacing "
                 "equal to the axial sampling in the projection data divided by an integer. Sorry\n");
- 
-    }  
-    
-    const float delta = proj_data_info_cyl_ptr->get_average_ring_difference(segment_num);
-    
-    // AG: Each segment is offset because of the angle, we adjust using delta
-    const float segment_offset_in_z_gantry_coords = 
-      proj_data_info_cyl_ptr->get_m(first_bin) - ring_spacing*delta/2;
-    axial_pos_to_z_offset[segment_num] = 
-      cartesian_grid_info_ptr->get_index_coordinates_for_physical_coordinates(
-        proj_data_info_cyl_ptr->get_physical_coordinates_for_gantry_coordinates(
-          CartesianCoordinate3D<float>(segment_offset_in_z_gantry_coords, 0, 0)
-        )
-      )[1]; // z
-  }
+      }
+
+      const float delta = proj_data_info_cyl_ptr->get_average_ring_difference(segment_num);
+
+      // AG: Each segment is offset because of the angle, we adjust using delta
+      const float segment_offset_in_z_gantry_coords = proj_data_info_cyl_ptr->get_m(first_bin) - ring_spacing * delta / 2;
+      axial_pos_to_z_offset[segment_num] = cartesian_grid_info_ptr->get_index_coordinates_for_physical_coordinates(
+          proj_data_info_cyl_ptr->get_physical_coordinates_for_gantry_coordinates(
+              CartesianCoordinate3D<float>(segment_offset_in_z_gantry_coords, 0, 0)))[1]; // z
+    }
 }
 
 /*! The DiscretisedDensity pointer has to point to an object of

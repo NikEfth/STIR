@@ -81,9 +81,8 @@ public:
   //! Return z-coordinate of the middle of the LOR in gantry coordinates
   /*!
   In gantry coordinates, the 0 of the z-axis is chosen in the middle of the scanner.
-  */  
+  */
   inline float get_m(const Bin&) const override;
-
 
   void get_LOR(LORInAxialAndNoArcCorrSinogramCoordinates<float>& lor, const Bin& bin) const override;
 #if 0

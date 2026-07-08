@@ -274,27 +274,23 @@ RigidObject3DTransformation::transform_bin(Bin& bin,
 #ifndef NEW_ROT
   CartesianCoordinate3D<float> coord_1;
   CartesianCoordinate3D<float> coord_2;
-  dynamic_cast<const ProjDataInfoCylindricalNoArcCorr&>(in_proj_data_info).
-    get_bin_detector_locations_in_gantry_coordinates(coord_1,coord_2,bin);
-  
+  dynamic_cast<const ProjDataInfoCylindricalNoArcCorr&>(in_proj_data_info)
+      .get_bin_detector_locations_in_gantry_coordinates(coord_1, coord_2, bin);
+
   // now do the movement
-  
-  const CartesianCoordinate3D<float> 
-    coord_1_transformed = transform_point(coord_1);
-  
-  const CartesianCoordinate3D<float> 
-    coord2transformed = transform_point(coord_2);
-  
-  dynamic_cast<const ProjDataInfoCylindricalNoArcCorr&>(out_proj_data_info).
-    get_bin_for_gantry_coordinate_pair(bin,
-                                                      coord_1_transformed,
-					              coord2transformed);
+
+  const CartesianCoordinate3D<float> coord_1_transformed = transform_point(coord_1);
+
+  const CartesianCoordinate3D<float> coord2transformed = transform_point(coord_2);
+
+  dynamic_cast<const ProjDataInfoCylindricalNoArcCorr&>(out_proj_data_info)
+      .get_bin_for_gantry_coordinate_pair(bin, coord_1_transformed, coord2transformed);
 #else
   LORInAxialAndNoArcCorrSinogramCoordinates<float> lor;
   in_proj_data_info.get_LOR(lor, bin);
   LORAs2Points<float> lor_as_points;
   lor.get_intersections_with_cylinder(lor_as_points, lor.radius());
-#if 0
+#  if 0
 // AG: No longer needed?
   // TODO origin
   // currently, the origin used for  proj_data_info is in the centre of the scanner,
@@ -313,7 +309,7 @@ RigidObject3DTransformation::transform_bin(Bin& bin,
   transformed_lor_as_points.p1().z() -= z_shift;
   transformed_lor_as_points.p2().z() -= z_shift;
   bin = out_proj_data_info.get_bin(transformed_lor_as_points);
-#endif
+#  endif
   if (bin.get_bin_value() > 0)
     bin.set_bin_value(value);
 }
@@ -322,9 +318,9 @@ void
 RigidObject3DTransformation::get_relative_transformation(RigidObject3DTransformation& output,
                                                          const RigidObject3DTransformation& reference)
 {
-#if 1
+#  if 1
   error("RigidObject3DTransformation::get_relative_transformation not implemented\n");
-#else
+#  else
   // this is very wrong.
   // correct code needs to transform translation (KT has it in Mathematica)
   CartesianCoordinate3D<float> trans;
@@ -333,10 +329,10 @@ RigidObject3DTransformation::get_relative_transformation(RigidObject3DTransforma
   trans = (*this).translation - reference.translation;
 
   output(quat, trans);
-#endif
+#  endif
 }
 
-#if 0
+#  if 0
 // next functions are not tested and hence disabled
 // they probably work when FIRSTROT is defined
 void 
@@ -442,22 +438,22 @@ RigidObject3DTransformation::euler2quaternion(Quaternion<float>& quat,const Coor
 	if (quat[1] < 0.0)
 		quat.neg_quaternion();
 }
-#endif
+#  endif
 
 RigidObject3DTransformation
 compose(const RigidObject3DTransformation& apply_last, const RigidObject3DTransformation& apply_first)
 {
-#ifdef FIRSTROT
+#  ifdef FIRSTROT
   const Quaternion<float> q2 = apply_last.get_quaternion();
   const CartesianCoordinate3D<float> trans = quat2point(q2 * point2quat(apply_first.get_translation()) * conjugate(q2));
 
   return RigidObject3DTransformation(q2 * apply_first.get_quaternion(), apply_last.get_translation() + trans);
-#else
+#  else
   const Quaternion<float> q1 = apply_first.get_quaternion();
   const CartesianCoordinate3D<float> trans = quat2point(q1 * point2quat(apply_last.get_translation()) * conjugate(q1));
 
   return RigidObject3DTransformation(q1 * apply_last.get_quaternion(), apply_first.get_translation() + trans);
-#endif
+#  endif
 }
 
 std::ostream&
@@ -514,7 +510,7 @@ construct_Horn_matrix(Iter1T start_orig_points,
   Iter2T transf_iter = start_transformed_points;
   while (orig_iter != end_orig_points)
     {
-#if 1
+#  if 1
       const Quaternion<float> q1 = point2quat(*orig_iter - orig_average);
       const Quaternion<float> q2 = point2quat(*transf_iter - transf_average);
       m[0][0] += q1[2] * q2[2] + q1[3] * q2[3] + q1[4] * q2[4];
@@ -527,7 +523,7 @@ construct_Horn_matrix(Iter1T start_orig_points,
       m[2][2] += -q1[2] * q2[2] + q1[3] * q2[3] - q1[4] * q2[4];
       m[2][3] += q1[4] * q2[3] + q1[3] * q2[4];
       m[3][3] += -q1[2] * q2[2] - q1[3] * q2[3] + q1[4] * q2[4];
-#else
+#  else
       // This is the original formulatino as given in e.g. R. Fulton's thesis
       // However, it is specific to the convention used for point2quat
       // while the above is independent of the convention
@@ -546,7 +542,7 @@ construct_Horn_matrix(Iter1T start_orig_points,
       m[2][3] += -(-transf.y() * orig.z() - orig.y() * transf.z());
 
       m[3][3] += -(orig.x() * transf.x() + orig.y() * transf.y() - orig.z() * transf.z());
-#endif
+#  endif
       ++orig_iter;
       ++transf_iter;
     }
@@ -603,9 +599,9 @@ RigidObject3DTransformation::find_closest_transformation(RigidObject3DTransforma
                                                          Iter2T start_transformed_points,
                                                          const Quaternion<float>& initial_rotation)
 {
-#ifdef DO_XY_SWAP
+#  ifdef DO_XY_SWAP
   error("Currently find_closest_transformation does not work with these conventions");
-#endif
+#  endif
   const CartesianCoordinate3D<float> orig_average = average(start_orig_points, end_orig_points);
   const CartesianCoordinate3D<float> transf_average
       = average(start_transformed_points, start_transformed_points + (end_orig_points - start_orig_points));
@@ -630,16 +626,16 @@ RigidObject3DTransformation::find_closest_transformation(RigidObject3DTransforma
     }
   Quaternion<float> q;
   std::copy(max_eigenvector.begin(), max_eigenvector.end(), q.begin());
-#ifdef FIRSTROT
+#  ifdef FIRSTROT
   q = conjugate(q);
   const RigidObject3DTransformation centred_transf(q, CartesianCoordinate3D<float>(0, 0, 0));
   const CartesianCoordinate3D<float> translation = transf_average - centred_transf.transform_point(orig_average);
-#else
+#  else
 
   const RigidObject3DTransformation centred_transf(conjugate(q), CartesianCoordinate3D<float>(0, 0, 0));
 
   const CartesianCoordinate3D<float> translation = orig_average - centred_transf.transform_point(transf_average);
-#endif
+#  endif
   result = RigidObject3DTransformation(q, translation);
 
   return Succeeded::yes;

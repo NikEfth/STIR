@@ -107,18 +107,14 @@ find_relation_between_coordinate_systems(int& num_planes_per_scanner_ring,
                        segment_num));
       }
 
-    // get a bin (any bin) at axial position 0
-    Bin first_bin(segment_num, 0, 0, 0);
-    const float delta = proj_data_info_cyl_ptr->get_average_ring_difference(segment_num);
-    const float segment_offset_in_z_gantry_coords = 
-      proj_data_info_cyl_ptr->get_m(first_bin) - ring_spacing*delta/2;
+      // get a bin (any bin) at axial position 0
+      Bin first_bin(segment_num, 0, 0, 0);
+      const float delta = proj_data_info_cyl_ptr->get_average_ring_difference(segment_num);
+      const float segment_offset_in_z_gantry_coords = proj_data_info_cyl_ptr->get_m(first_bin) - ring_spacing * delta / 2;
 
-      axial_pos_to_z_offset[segment_num] = 
-      cartesian_grid_info_ptr->get_index_coordinates_for_physical_coordinates(
-        proj_data_info_cyl_ptr->get_physical_coordinates_for_gantry_coordinates(
-          CartesianCoordinate3D<float>(segment_offset_in_z_gantry_coords, 0, 0)
-        )
-      )[1];
+      axial_pos_to_z_offset[segment_num] = cartesian_grid_info_ptr->get_index_coordinates_for_physical_coordinates(
+          proj_data_info_cyl_ptr->get_physical_coordinates_for_gantry_coordinates(
+              CartesianCoordinate3D<float>(segment_offset_in_z_gantry_coords, 0, 0)))[1];
     }
 }
 

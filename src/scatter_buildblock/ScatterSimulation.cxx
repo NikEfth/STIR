@@ -152,11 +152,10 @@ ScatterSimulation::process_data()
   bin_timer.stop();
   wall_clock_timer.stop();
 
-    if (detection_points_in_gantry_coords_vector.size() != static_cast<unsigned int>(total_detectors))
+  if (detection_points_in_gantry_coords_vector.size() != static_cast<unsigned int>(total_detectors))
     {
-        warning("Expected num detectors: %d, but found %d\n",
-                total_detectors, detection_points_in_gantry_coords_vector.size());
-        return Succeeded::no;
+      warning("Expected num detectors: %d, but found %d\n", total_detectors, detection_points_in_gantry_coords_vector.size());
+      return Succeeded::no;
     }
 
   info(format("TOTAL SCATTER counts before upsampling and norm = {}", total_scatter));
@@ -360,20 +359,16 @@ ScatterSimulation::set_up()
 void
 ScatterSimulation::check_z_to_middle_consistent(const DiscretisedDensity<3, float>& _image, const std::string& name) const
 {
-  const VoxelsOnCartesianGrid<float> & image = dynamic_cast<VoxelsOnCartesianGrid<float> const& >(_image);
-  const float z_to_middle =
-    image.get_image_centre_in_physical_coordinates().z();
+  const VoxelsOnCartesianGrid<float>& image = dynamic_cast<VoxelsOnCartesianGrid<float> const&>(_image);
+  const float z_to_middle = image.get_image_centre_in_physical_coordinates().z();
 
 #if 0
   const Scanner& scanner = *this->proj_data_info_sptr->get_scanner_ptr();
   const float z_to_middle_standard =
     (scanner.get_num_rings()-1) * scanner.get_ring_spacing()/2;
 #endif
-  const VoxelsOnCartesianGrid<float> & act_image =
-    dynamic_cast<VoxelsOnCartesianGrid<float> const& >(*this->activity_image_sptr);
-  const float z_to_middle_standard =
-    act_image.get_image_centre_in_physical_coordinates().z();
-
+  const VoxelsOnCartesianGrid<float>& act_image = dynamic_cast<VoxelsOnCartesianGrid<float> const&>(*this->activity_image_sptr);
+  const float z_to_middle_standard = act_image.get_image_centre_in_physical_coordinates().z();
 
   if (abs(z_to_middle - z_to_middle_standard) > .1)
     error(format("ScatterSimulation: limitation in #planes and voxel-size for the {} image.\n"
@@ -801,25 +796,25 @@ ScatterSimulation::downsample_scanner(int new_num_rings, int new_num_dets)
 {
   if (new_num_rings <= 0)
     {
-	if(downsample_scanner_rings > 1)
+      if (downsample_scanner_rings > 1)
         new_num_rings = downsample_scanner_rings;
-    else if (!is_null_ptr(proj_data_info_sptr))
-	  {
-      const float total_axial_length = proj_data_info_sptr->get_scanner_sptr()->get_num_rings()
+      else if (!is_null_ptr(proj_data_info_sptr))
+        {
+          const float total_axial_length = proj_data_info_sptr->get_scanner_sptr()->get_num_rings()
                                            * proj_data_info_sptr->get_scanner_sptr()->get_ring_spacing();
 
-	    new_num_rings = round(total_axial_length / 20.F + 0.5F);
-      new_num_rings = max(new_num_rings, 2); // set number of rings to at least 2
-	  }
-	else
-            return Succeeded::no;
+          new_num_rings = round(total_axial_length / 20.F + 0.5F);
+          new_num_rings = max(new_num_rings, 2); // set number of rings to at least 2
+        }
+      else
+        return Succeeded::no;
     }
-    if (new_num_dets <= 0)
+  if (new_num_dets <= 0)
     {
-        if(downsample_scanner_dets > 0)
-            new_num_dets = downsample_scanner_dets;
-        else
-            return Succeeded::no;
+      if (downsample_scanner_dets > 0)
+        new_num_dets = downsample_scanner_dets;
+      else
+        return Succeeded::no;
     }
 
   const Scanner* const old_scanner_ptr = this->proj_data_info_sptr->get_scanner_ptr();
@@ -893,7 +888,7 @@ ScatterSimulation::downsample_scanner(int new_num_rings, int new_num_dets)
       float scanner_length_cyl = (new_scanner_sptr->get_num_rings() - 1) * new_scanner_sptr->get_ring_spacing();
       new_scanner_sptr->set_num_rings(new_num_rings);
       new_scanner_sptr->set_num_detectors_per_ring(new_num_dets);
-      new_scanner_sptr->set_ring_spacing(static_cast<float>(scanner_length_cyl / (new_scanner_sptr->get_num_rings() -1)));
+      new_scanner_sptr->set_ring_spacing(static_cast<float>(scanner_length_cyl / (new_scanner_sptr->get_num_rings() - 1)));
     }
 
   new_scanner_sptr->set_max_num_non_arccorrected_bins(approx_num_non_arccorrected_bins);

@@ -46,11 +46,10 @@ ScatterSimulation::sample_scatter_points()
 
   BasicCoordinate<3, int> min_index, max_index;
   CartesianCoordinate3D<int> coord;
-  if(!this->density_image_for_scatter_points_sptr->get_regular_range(min_index, max_index))
-    error("scatter points sampling works only on regular ranges, at the moment\n");    
-  const VoxelsOnCartesianGrid<float>& image =
-    dynamic_cast<const VoxelsOnCartesianGrid<float>&>(attenuation_map);
-  const CartesianCoordinate3D<float> voxel_size = image.get_voxel_size();       
+  if (!this->density_image_for_scatter_points_sptr->get_regular_range(min_index, max_index))
+    error("scatter points sampling works only on regular ranges, at the moment\n");
+  const VoxelsOnCartesianGrid<float>& image = dynamic_cast<const VoxelsOnCartesianGrid<float>&>(attenuation_map);
+  const CartesianCoordinate3D<float> voxel_size = image.get_voxel_size();
 
   this->scatter_volume = voxel_size[1] * voxel_size[2] * voxel_size[3];
 
@@ -67,18 +66,14 @@ ScatterSimulation::sample_scatter_points()
       for (coord[3] = min_index[3]; coord[3] <= max_index[3]; ++coord[3])
         if (attenuation_map[coord] >= this->attenuation_threshold)
           {
-            CartesianCoordinate3D<float> scatter_point_index_coords
-              = convert_int_to_float(coord);       
+            CartesianCoordinate3D<float> scatter_point_index_coords = convert_int_to_float(coord);
             if (randomly_place_scatter_points)
-              scatter_point_index_coords +=
-                CartesianCoordinate3D<float>(random_point(-.5,.5),
-                                             random_point(-.5,.5),
-                                             random_point(-.5,.5));
+              scatter_point_index_coords
+                  += CartesianCoordinate3D<float>(random_point(-.5, .5), random_point(-.5, .5), random_point(-.5, .5));
             // AG: ^ Should this not be in range (0, 1) not (-0.5, 0.5)?
-            ScatterPoint scatter_point;                                 
-            scatter_point.physical_coord
-              = image.get_physical_coordinates_for_indices(scatter_point_index_coords);
-            scatter_point.mu_value = attenuation_map[coord];  // is this right? in phys coords?
+            ScatterPoint scatter_point;
+            scatter_point.physical_coord = image.get_physical_coordinates_for_indices(scatter_point_index_coords);
+            scatter_point.mu_value = attenuation_map[coord]; // is this right? in phys coords?
             this->scatt_points_vector.push_back(scatter_point);
           }
   this->remove_cache_for_integrals_over_activity();

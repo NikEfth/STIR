@@ -93,10 +93,12 @@ ProjDataInfoBlocksOnCylindricalNoArcCorr::parameter_info() const
 
 //! warning Use crystal map
 Succeeded
-ProjDataInfoBlocksOnCylindricalNoArcCorr::get_det_pair_for_gantry_coordinate_pair(
-    int& det1, int& det2, int& ring1, int& ring2, 
-    const CartesianCoordinate3D<float>& c1, const CartesianCoordinate3D<float>& c2)
-    const
+ProjDataInfoBlocksOnCylindricalNoArcCorr::get_det_pair_for_gantry_coordinate_pair(int& det1,
+                                                                                  int& det2,
+                                                                                  int& ring1,
+                                                                                  int& ring2,
+                                                                                  const CartesianCoordinate3D<float>& c1,
+                                                                                  const CartesianCoordinate3D<float>& c2) const
 {
 
   DetectionPosition<> det_pos1;

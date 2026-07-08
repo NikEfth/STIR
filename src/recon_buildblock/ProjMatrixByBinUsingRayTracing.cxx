@@ -273,9 +273,9 @@ ProjMatrixByBinUsingRayTracing::set_up(
     }
 
   voxel_size = image_info_sptr->get_voxel_size();
-  if (abs(image_info_sptr->get_origin().x())>.05F || abs(image_info_sptr->get_origin().y())>.05F)
-    error("ProjMatrixByBinUsingRayTracing sadly doesn't support shifted x/y origin yet"); 
-  
+  if (abs(image_info_sptr->get_origin().x()) > .05F || abs(image_info_sptr->get_origin().y()) > .05F)
+    error("ProjMatrixByBinUsingRayTracing sadly doesn't support shifted x/y origin yet");
+
   symmetries_sptr.reset(new DataSymmetriesForBins_PET_CartesianGrid(proj_data_info_sptr,
                                                                     density_info_sptr_v,
                                                                     do_symmetry_90degrees_min_phi,
@@ -386,30 +386,19 @@ ProjMatrixByBinUsingRayTracing::set_up(
         info("ProjMatrixByBinUsingRayTracing: use_actual_detector_boundaries==true.", 3);
     }
 
-
   // precalculate some values that are constant over all bins
   CartesianCoordinate3D<float> min_pos, max_pos;
   this->image_info_sptr->get_regular_range(min_index, max_index);
 #ifdef STIR_PMRT_LARGER_FOV
   // use FOV which is slightly 'inside' the image to avoid
   // index out of range
-  max_pos =
-    density_info_sptr
-      ->get_relative_coordinates_for_indices(max_index + 0.45F);
-  min_pos =
-    density_info_sptr
-      ->get_relative_coordinates_for_indices(min_index - 0.45F);
+  max_pos = density_info_sptr->get_relative_coordinates_for_indices(max_index + 0.45F);
+  min_pos = density_info_sptr->get_relative_coordinates_for_indices(min_index - 0.45F);
 #else
-  max_pos =
-    density_info_sptr
-      ->get_relative_coordinates_for_indices(max_index);
-  min_pos =
-    density_info_sptr
-      ->get_relative_coordinates_for_indices(min_index);
+  max_pos = density_info_sptr->get_relative_coordinates_for_indices(max_index);
+  min_pos = density_info_sptr->get_relative_coordinates_for_indices(min_index);
 #endif
-  fovrad_in_mm =
-    min(min(max_pos.x(), -min_pos.x()),
-        min(max_pos.y(), -min_pos.y()));
+  fovrad_in_mm = min(min(max_pos.x(), -min_pos.x()), min(max_pos.y(), -min_pos.y()));
 
 #if 0
   // test if our 2D code does not have problems
@@ -460,24 +449,28 @@ sign(const T& t)
 }
 
 CartesianCoordinate3D<float>
-get_point_on_lor_in_index_coordinates
-(const float s_in_mm, const float m_in_mm, const float a_in_mm,
- const float cphi, const float sphi, const float tantheta,
- const DiscretisedDensity<3, float>& density_info,
- const ProjDataInfo& proj_data_info)
+get_point_on_lor_in_index_coordinates(const float s_in_mm,
+                                      const float m_in_mm,
+                                      const float a_in_mm,
+                                      const float cphi,
+                                      const float sphi,
+                                      const float tantheta,
+                                      const DiscretisedDensity<3, float>& density_info,
+                                      const ProjDataInfo& proj_data_info)
 {
-  return density_info.get_index_coordinates_for_physical_coordinates
-    (proj_data_info.get_physical_coordinates_for_gantry_coordinates
-     (proj_data_info.get_point_on_lor_in_gantry_coordinates
-      (s_in_mm, m_in_mm, a_in_mm, cphi, sphi, tantheta)));
+  return density_info.get_index_coordinates_for_physical_coordinates(
+      proj_data_info.get_physical_coordinates_for_gantry_coordinates(
+          proj_data_info.get_point_on_lor_in_gantry_coordinates(s_in_mm, m_in_mm, a_in_mm, cphi, sphi, tantheta)));
 }
 
 // just do 1 LOR, returns true if lor is not empty
 static void
-ray_trace_one_lor(ProjMatrixElemsForOneBin& lor, 
-                  const float s_in_mm, const float m_in_mm, 
-                  const float cphi, const float sphi, 
-                  const float tantheta, 
+ray_trace_one_lor(ProjMatrixElemsForOneBin& lor,
+                  const float s_in_mm,
+                  const float m_in_mm,
+                  const float cphi,
+                  const float sphi,
+                  const float tantheta,
                   const float offset_in_z,
                   const float fovrad_in_mm,
                   const CartesianCoordinate3D<float>& voxel_size,
@@ -499,68 +492,63 @@ ray_trace_one_lor(ProjMatrixElemsForOneBin& lor,
     */
     float max_a;
     float min_a;
-    
-    if (restrict_to_cylindrical_FOV)
-    {
-#ifdef STIR_PMRT_LARGER_FOV
-      if (fabs(s_in_mm) >= fovrad_in_mm) return;
-#else
-      if (fabs(s_in_mm) > fovrad_in_mm) return;
-#endif
-      // a has to be such that X^2+Y^2 == fovrad^2      
-      if (fabs(s_in_mm) == fovrad_in_mm) 
-        {
-          max_a = min_a = 0;
-        }
-      else
-        {
-          max_a = sqrt(square(fovrad_in_mm) - square(s_in_mm));
-          min_a = -max_a;
-        }
-    } // restrict_to_cylindrical_FOV
-    else
-    {
-      // use FOV which is square.
-      // note that we use square and not rectangular as otherwise symmetries
-      // would take us out of the FOV. TODO
-      /*
-        a has to be such that 
-        |X| <= fovrad_in_mm &&  |Y| <= fovrad_in_mm
-      */
-      if (fabs(cphi) < 1.E-3 || fabs(sphi) < 1.E-3) 
-      {
-        if (fovrad_in_mm < fabs(s_in_mm))
-          return;
-        max_a = fovrad_in_mm;
-        min_a = -fovrad_in_mm;
-      }
-      else
-      {
-        max_a = min((fovrad_in_mm*sign(sphi) - s_in_mm*cphi)/sphi,
-                    (fovrad_in_mm*sign(cphi) + s_in_mm*sphi)/cphi);
-        min_a = max((-fovrad_in_mm*sign(sphi) - s_in_mm*cphi)/sphi,
-                    (-fovrad_in_mm*sign(cphi) + s_in_mm*sphi)/cphi);
 
-        if (min_a > max_a - 1.E-3*voxel_size.x())
+    if (restrict_to_cylindrical_FOV)
+      {
+#ifdef STIR_PMRT_LARGER_FOV
+        if (fabs(s_in_mm) >= fovrad_in_mm)
           return;
-      }
-      
-    } //!restrict_to_cylindrical_FOV
-    
+#else
+        if (fabs(s_in_mm) > fovrad_in_mm)
+          return;
+#endif
+        // a has to be such that X^2+Y^2 == fovrad^2
+        if (fabs(s_in_mm) == fovrad_in_mm)
+          {
+            max_a = min_a = 0;
+          }
+        else
+          {
+            max_a = sqrt(square(fovrad_in_mm) - square(s_in_mm));
+            min_a = -max_a;
+          }
+      } // restrict_to_cylindrical_FOV
+    else
+      {
+        // use FOV which is square.
+        // note that we use square and not rectangular as otherwise symmetries
+        // would take us out of the FOV. TODO
+        /*
+          a has to be such that
+          |X| <= fovrad_in_mm &&  |Y| <= fovrad_in_mm
+        */
+        if (fabs(cphi) < 1.E-3 || fabs(sphi) < 1.E-3)
+          {
+            if (fovrad_in_mm < fabs(s_in_mm))
+              return;
+            max_a = fovrad_in_mm;
+            min_a = -fovrad_in_mm;
+          }
+        else
+          {
+            max_a = min((fovrad_in_mm * sign(sphi) - s_in_mm * cphi) / sphi, (fovrad_in_mm * sign(cphi) + s_in_mm * sphi) / cphi);
+            min_a
+                = max((-fovrad_in_mm * sign(sphi) - s_in_mm * cphi) / sphi, (-fovrad_in_mm * sign(cphi) + s_in_mm * sphi) / cphi);
+
+            if (min_a > max_a - 1.E-3 * voxel_size.x())
+              return;
+          }
+
+      } //! restrict_to_cylindrical_FOV
 
     // start_point_gantry = (s_in_mm*cphi + max_a*sphi);
     // start_point_bed = tx_gantry_to_bed(start_point_gantry);
     // start_point_vx = tx_bed_to_idx(start_point_bed);
 
-
-    CartesianCoordinate3D<float> start_point
-      = get_point_on_lor_in_index_coordinates
-      (s_in_mm, m_in_mm+offset_in_z, max_a, cphi, sphi, tantheta,
-       density_info, proj_data_info);
-    CartesianCoordinate3D<float> stop_point
-      = get_point_on_lor_in_index_coordinates
-      (s_in_mm, m_in_mm+offset_in_z, min_a, cphi, sphi, tantheta,
-       density_info, proj_data_info);
+    CartesianCoordinate3D<float> start_point = get_point_on_lor_in_index_coordinates(
+        s_in_mm, m_in_mm + offset_in_z, max_a, cphi, sphi, tantheta, density_info, proj_data_info);
+    CartesianCoordinate3D<float> stop_point = get_point_on_lor_in_index_coordinates(
+        s_in_mm, m_in_mm + offset_in_z, min_a, cphi, sphi, tantheta, density_info, proj_data_info);
 
 #if 0
     // KT 18/05/2005 this is no longer necessary
@@ -757,86 +745,98 @@ ProjMatrixByBinUsingRayTracing::calculate_proj_matrix_elems_for_one_bin(ProjMatr
       // make sure we don't ray-trace exactly between 2 planes
       // z-coordinate (in voxel units) will be
       //  (m_in_mm+offset_in_z)/voxel_size.z();
-      // if so, we ray trace first to the voxels at smaller z, but will add the 
+      // if so, we ray trace first to the voxels at smaller z, but will add the
       // other plane later (in add_adjacent_z)
-      if (fabs(modulo((m_in_mm+offset_in_z)/voxel_size.z(),1.F)-.5)<.001)
-        offset_in_z -= .1F*voxel_size.z();
+      if (fabs(modulo((m_in_mm + offset_in_z) / voxel_size.z(), 1.F) - .5) < .001)
+        offset_in_z -= .1F * voxel_size.z();
     }
 
   if (num_tangential_LORs == 1)
-  {
-    ray_trace_one_lor(lor, s_in_mm, m_in_mm,
-                      cphi, sphi, tantheta,
-                      offset_in_z, fovrad_in_mm,
-                      voxel_size,
-                      restrict_to_cylindrical_FOV,
-                      num_lors_per_axial_pos,
-                      *density_info_sptr, *proj_data_info_sptr);
-  }
-  else
-  {
-    ProjMatrixElemsForOneBin ray_traced_lor;
-
-    // get_sampling_in_s returns sampling in interleaved case
-    // interleaved case has a sampling which is twice as high
-    const float s_inc = 
-       (!use_actual_detector_boundaries ? 1 : 2) *
-        proj_data_info_sptr->get_sampling_in_s(bin)/num_tangential_LORs;
-    float current_s_in_mm =
-        s_in_mm - s_inc*(num_tangential_LORs-1)/2.F;
-    for (int s_LOR_num=1; s_LOR_num<=num_tangential_LORs; ++s_LOR_num, current_s_in_mm+=s_inc)
     {
-      ray_traced_lor.erase();
-      ray_trace_one_lor(ray_traced_lor, current_s_in_mm, m_in_mm,
-                        cphi, sphi, tantheta,
-                        offset_in_z, fovrad_in_mm,
+      ray_trace_one_lor(lor,
+                        s_in_mm,
+                        m_in_mm,
+                        cphi,
+                        sphi,
+                        tantheta,
+                        offset_in_z,
+                        fovrad_in_mm,
                         voxel_size,
                         restrict_to_cylindrical_FOV,
-                        num_lors_per_axial_pos*num_tangential_LORs,
-                        *density_info_sptr, *proj_data_info_sptr);
-      //std::cerr << "ray traced size " << ray_traced_lor.size() << std::endl;
-      lor.merge(ray_traced_lor);
+                        num_lors_per_axial_pos,
+                        *density_info_sptr,
+                        *proj_data_info_sptr);
     }
-  }
-      
+  else
+    {
+      ProjMatrixElemsForOneBin ray_traced_lor;
+
+      // get_sampling_in_s returns sampling in interleaved case
+      // interleaved case has a sampling which is twice as high
+      const float s_inc
+          = (!use_actual_detector_boundaries ? 1 : 2) * proj_data_info_sptr->get_sampling_in_s(bin) / num_tangential_LORs;
+      float current_s_in_mm = s_in_mm - s_inc * (num_tangential_LORs - 1) / 2.F;
+      for (int s_LOR_num = 1; s_LOR_num <= num_tangential_LORs; ++s_LOR_num, current_s_in_mm += s_inc)
+        {
+          ray_traced_lor.erase();
+          ray_trace_one_lor(ray_traced_lor,
+                            current_s_in_mm,
+                            m_in_mm,
+                            cphi,
+                            sphi,
+                            tantheta,
+                            offset_in_z,
+                            fovrad_in_mm,
+                            voxel_size,
+                            restrict_to_cylindrical_FOV,
+                            num_lors_per_axial_pos * num_tangential_LORs,
+                            *density_info_sptr,
+                            *proj_data_info_sptr);
+          // std::cerr << "ray traced size " << ray_traced_lor.size() << std::endl;
+          lor.merge(ray_traced_lor);
+        }
+    }
+
   // now add on other LORs in axial direction
-  if (lor.size()>0)
-  {          
-    if (tantheta==0 ) 
-      {
-        // we want to use add_adjacent_z to fill in mutliple lines
-        // within the TOR, leveraging our traced LOR
-        // since tantheta==0, z is constant
-        const float z_of_traced_lor
-          = static_cast<float>(lor.begin()->coord1());
-          
-        // We want the z limits for the TOR. We set s and a to 0.
-        // Since tantheta==0, they will not affect the z coordinate.
-        // (actually, as stated above, the LOR has a constant z, and
-        // so does the TOR)
-        float z_of_start_of_tor
-          = get_point_on_lor_in_index_coordinates
-          (0, m_in_mm - sampling_distance_of_adjacent_LORs_z/2, 0,
-           cphi, sphi, tantheta,
-           *density_info_sptr, *proj_data_info_sptr)
-          .z();
-        float z_of_end_of_tor
-          = get_point_on_lor_in_index_coordinates
-          (0, m_in_mm + sampling_distance_of_adjacent_LORs_z/2, 0,
-           cphi, sphi, tantheta,
-           *density_info_sptr, *proj_data_info_sptr)
-          .z();
+  if (lor.size() > 0)
+    {
+      if (tantheta == 0)
+        {
+          // we want to use add_adjacent_z to fill in mutliple lines
+          // within the TOR, leveraging our traced LOR
+          // since tantheta==0, z is constant
+          const float z_of_traced_lor = static_cast<float>(lor.begin()->coord1());
 
-        const float z_of_traced_lor_relative_to_start_of_tor
-          = z_of_traced_lor - z_of_start_of_tor;
-        const float z_of_end_of_tor_relative_to_start_of_tor
-          = z_of_end_of_tor - z_of_start_of_tor;
+          // We want the z limits for the TOR. We set s and a to 0.
+          // Since tantheta==0, they will not affect the z coordinate.
+          // (actually, as stated above, the LOR has a constant z, and
+          // so does the TOR)
+          float z_of_start_of_tor = get_point_on_lor_in_index_coordinates(0,
+                                                                          m_in_mm - sampling_distance_of_adjacent_LORs_z / 2,
+                                                                          0,
+                                                                          cphi,
+                                                                          sphi,
+                                                                          tantheta,
+                                                                          *density_info_sptr,
+                                                                          *proj_data_info_sptr)
+                                        .z();
+          float z_of_end_of_tor = get_point_on_lor_in_index_coordinates(0,
+                                                                        m_in_mm + sampling_distance_of_adjacent_LORs_z / 2,
+                                                                        0,
+                                                                        cphi,
+                                                                        sphi,
+                                                                        tantheta,
+                                                                        *density_info_sptr,
+                                                                        *proj_data_info_sptr)
+                                      .z();
 
-        add_adjacent_z(lor, z_of_traced_lor_relative_to_start_of_tor,
-                       z_of_end_of_tor_relative_to_start_of_tor);
-      }
-    else if (num_lors_per_axial_pos>1)
-      {
+          const float z_of_traced_lor_relative_to_start_of_tor = z_of_traced_lor - z_of_start_of_tor;
+          const float z_of_end_of_tor_relative_to_start_of_tor = z_of_end_of_tor - z_of_start_of_tor;
+
+          add_adjacent_z(lor, z_of_traced_lor_relative_to_start_of_tor, z_of_end_of_tor_relative_to_start_of_tor);
+        }
+      else if (num_lors_per_axial_pos > 1)
+        {
 #if 0
         if (num_lors_per_axial_pos==2)
           {         

@@ -148,13 +148,11 @@ ProjDataInfoCylindrical::initialise_ring_diff_arrays() const
     get_m(..., min_axial_pos_num,...) == - get_m(..., max_axial_pos_num,...)
     */
 
-    for (int segment_num=get_min_segment_num(); segment_num<=get_max_segment_num(); ++segment_num)
-    {
-      m_offset[segment_num] =
-        ((get_max_axial_pos_num(segment_num) + get_min_axial_pos_num(segment_num))
-	 *get_axial_sampling(segment_num)
-        )/2;
-    }
+    for (int segment_num = get_min_segment_num(); segment_num <= get_max_segment_num(); ++segment_num)
+      {
+        m_offset[segment_num]
+            = ((get_max_axial_pos_num(segment_num) + get_min_axial_pos_num(segment_num)) * get_axial_sampling(segment_num)) / 2;
+      }
   }
   // initialise ax_pos_num_offset
   if (sampling_corresponds_to_physical_rings)
@@ -275,21 +273,20 @@ ProjDataInfoCylindrical::initialise_ring_diff_arrays() const
           = VectorWithOffset<VectorWithOffset<int>>(get_min_segment_num(), get_max_segment_num());
       for (int s_num = get_min_segment_num(); s_num <= get_max_segment_num(); ++s_num)
         {
-     const int min_ax_pos_num = get_min_axial_pos_num(s_num);
-      const int max_ax_pos_num = get_max_axial_pos_num(s_num);
-      segment_axial_pos_to_ring1_plus_ring2[s_num].grow(min_ax_pos_num, max_ax_pos_num);
-      for (int ax_pos_num=min_ax_pos_num; ax_pos_num<=max_ax_pos_num; ++ax_pos_num)
-      {
-         // see documentation above for formulas
-        const float ring1_plus_ring2_float =
-          2*ax_pos_num/get_num_axial_poss_per_ring_inc(s_num)
-          -2*m_offset[s_num]/ring_spacing + (get_scanner_ptr()->get_num_rings()-1);
-        const int ring1_plus_ring2 =
-          round(ring1_plus_ring2_float);
-        // check that it was integer
-        assert(fabs(ring1_plus_ring2 - ring1_plus_ring2_float) < 1E-4) ;
-        segment_axial_pos_to_ring1_plus_ring2[s_num][ax_pos_num] = ring1_plus_ring2;
-      }
+          const int min_ax_pos_num = get_min_axial_pos_num(s_num);
+          const int max_ax_pos_num = get_max_axial_pos_num(s_num);
+          segment_axial_pos_to_ring1_plus_ring2[s_num].grow(min_ax_pos_num, max_ax_pos_num);
+          for (int ax_pos_num = min_ax_pos_num; ax_pos_num <= max_ax_pos_num; ++ax_pos_num)
+            {
+              // see documentation above for formulas
+              const float ring1_plus_ring2_float = 2 * ax_pos_num / get_num_axial_poss_per_ring_inc(s_num)
+                                                   - 2 * m_offset[s_num] / ring_spacing
+                                                   + (get_scanner_ptr()->get_num_rings() - 1);
+              const int ring1_plus_ring2 = round(ring1_plus_ring2_float);
+              // check that it was integer
+              assert(fabs(ring1_plus_ring2 - ring1_plus_ring2_float) < 1E-4);
+              segment_axial_pos_to_ring1_plus_ring2[s_num][ax_pos_num] = ring1_plus_ring2;
+            }
         }
     }
 

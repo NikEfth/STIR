@@ -133,16 +133,15 @@ find_rmin_rmax(int& rmin,
 {
   // precomupute a few values:
   // Radius of the FOV as per the ProjDataInfo, in mm
-  const float fovrad = 
-    proj_data_info_cyl.get_s(Bin(0,0,0,proj_data_info_cyl.get_num_tangential_poss()/2 - 1));
+  const float fovrad = proj_data_info_cyl.get_s(Bin(0, 0, 0, proj_data_info_cyl.get_num_tangential_poss() / 2 - 1));
   // Radius of the detector rings in mm
   const float ringrad = proj_data_info_cyl.get_ring_radius();
   // delta, ring difference in units of n.rings
   const float delta = proj_data_info_cyl.get_average_ring_difference(seg_num);
   // if span > 1, we essentially have twice as many "virtual rings"
-  const int num_virtual_rings_per_physical_ring =
-    (proj_data_info_cyl.get_max_ring_difference(seg_num) == proj_data_info_cyl.get_min_ring_difference(seg_num)) ? 1 : 2;
-  
+  const int num_virtual_rings_per_physical_ring
+      = (proj_data_info_cyl.get_max_ring_difference(seg_num) == proj_data_info_cyl.get_min_ring_difference(seg_num)) ? 1 : 2;
+
   // This can be derived graphically by drawing a line from a top view of
   // a scanner from ring to ring at angle theta (based on the segment)
   // that just skims the field-of-view at the end of the ring.
@@ -159,14 +158,15 @@ find_rmin_rmax(int& rmin,
   rmin = static_cast<int>(floor(-lor_overhang_in_num_virtual_rings));
   // and rmax can be calculated symmetrically (we assume here the axial positions
   // are correctly centred, this won't work otherwise.)
-  rmax =  proj_data_info_cyl.get_max_axial_pos_num(seg_num) + (proj_data_info_cyl.get_min_axial_pos_num(seg_num) - rmin);
+  rmax = proj_data_info_cyl.get_max_axial_pos_num(seg_num) + (proj_data_info_cyl.get_min_axial_pos_num(seg_num) - rmin);
 
   // lastly, if we were, for some reason, provided a larger-than-standard
   // sinogram, make sure we use at least that size.
-  if (proj_data_info_cyl.get_min_axial_pos_num(seg_num) < rmin) {
-    rmin = proj_data_info_cyl.get_min_axial_pos_num(seg_num);
-    rmax = proj_data_info_cyl.get_max_axial_pos_num(seg_num);
-  }
+  if (proj_data_info_cyl.get_min_axial_pos_num(seg_num) < rmin)
+    {
+      rmin = proj_data_info_cyl.get_min_axial_pos_num(seg_num);
+      rmax = proj_data_info_cyl.get_max_axial_pos_num(seg_num);
+    }
 
   // info(boost::format("seg: %s : amin: %s, amax: %s")
   //   % seg_num % proj_data_info_cyl.get_min_axial_pos_num(seg_num) % proj_data_info_cyl.get_max_axial_pos_num(seg_num));

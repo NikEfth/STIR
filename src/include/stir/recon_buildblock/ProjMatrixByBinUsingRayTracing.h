@@ -181,8 +181,8 @@ private:
   bool do_symmetry_swap_s;
   bool do_symmetry_shift_z;
 
-  shared_ptr<const  DiscretisedDensity<3,float> > density_info_sptr;
-  
+  shared_ptr<const DiscretisedDensity<3, float>> density_info_sptr;
+
   // chase a few needed and constant after set_up() image details
   CartesianCoordinate3D<float> voxel_size;
   CartesianCoordinate3D<float> origin;

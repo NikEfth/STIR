@@ -71,14 +71,13 @@ CListEventScannerWithDiscreteDetectors<ProjDataInfoT>::get_LOR() const
   assert(det_pos.pos2().radial_coord() == 0);
 
   // TODO we're using an obsolete function here which uses a different coordinate system
-  this->get_uncompressed_proj_data_info_sptr()->get_det_pair_locations_in_gantry_coordinates(
-      coord_1,
-      coord_2,
-      det_pos.pos1().axial_coord(),
-      det_pos.pos2().axial_coord(),
-      det_pos.pos1().tangential_coord(),
-      det_pos.pos2().tangential_coord(),
-      det_pos.timing_pos());
+  this->get_uncompressed_proj_data_info_sptr()->get_det_pair_locations_in_gantry_coordinates(coord_1,
+                                                                                             coord_2,
+                                                                                             det_pos.pos1().axial_coord(),
+                                                                                             det_pos.pos2().axial_coord(),
+                                                                                             det_pos.pos1().tangential_coord(),
+                                                                                             det_pos.pos2().tangential_coord(),
+                                                                                             det_pos.timing_pos());
   // find shift in z
   const float shift = this->get_uncompressed_proj_data_info_sptr()->get_ring_spacing()
                       * (this->get_uncompressed_proj_data_info_sptr()->get_scanner_ptr()->get_num_rings() - 1) / 2.F;

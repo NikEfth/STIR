@@ -155,12 +155,12 @@ ProjDataInfoGenericNoArcCorr::parameter_info() const
 
 void
 ProjDataInfoGenericNoArcCorr::get_det_pair_locations_in_gantry_coordinates(CartesianCoordinate3D<float>& coord_1,
-                                                                                   CartesianCoordinate3D<float>& coord_2,
-                                                                                   const int Ring_A,
-                                                                                   const int Ring_B,
-                                                                                   const int det1,
-                                                                                   const int det2,
-                                                                                   const int timing_pos_num) const
+                                                                           CartesianCoordinate3D<float>& coord_2,
+                                                                           const int Ring_A,
+                                                                           const int Ring_B,
+                                                                           const int det1,
+                                                                           const int det2,
+                                                                           const int timing_pos_num) const
 {
   assert(0 <= det1);
   assert(det1 < get_scanner_ptr()->get_num_detectors_per_ring());

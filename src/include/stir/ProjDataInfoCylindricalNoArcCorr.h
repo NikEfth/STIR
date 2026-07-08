@@ -250,23 +250,28 @@ public:
 
   Bin get_bin(const LOR<float>&, const double delta_time = 0.0) const override;
 
-  virtual Succeeded get_det_pair_for_gantry_coordinate_pair(int& det1, int& det2, int& ring1, int& ring2,
-					             const CartesianCoordinate3D<float>& c1,
-						     const CartesianCoordinate3D<float>& c2) const;
-  
-  void get_bin_detector_locations_in_gantry_coordinates(CartesianCoordinate3D<float>& coord_1,
-					       CartesianCoordinate3D<float>& coord_2,
-					       const Bin& bin) const;
+  virtual Succeeded get_det_pair_for_gantry_coordinate_pair(int& det1,
+                                                            int& det2,
+                                                            int& ring1,
+                                                            int& ring2,
+                                                            const CartesianCoordinate3D<float>& c1,
+                                                            const CartesianCoordinate3D<float>& c2) const;
 
-  virtual void get_det_pair_locations_in_gantry_coordinates (CartesianCoordinate3D<float>& coord_1,
-							     CartesianCoordinate3D<float>& coord_2,
-							     const int Ring_A,const int Ring_B, 
-							     const int det1, const int det2, 
-                  const int timing_pos_num = 0) const;
- 
+  void get_bin_detector_locations_in_gantry_coordinates(CartesianCoordinate3D<float>& coord_1,
+                                                        CartesianCoordinate3D<float>& coord_2,
+                                                        const Bin& bin) const;
+
+  virtual void get_det_pair_locations_in_gantry_coordinates(CartesianCoordinate3D<float>& coord_1,
+                                                            CartesianCoordinate3D<float>& coord_2,
+                                                            const int Ring_A,
+                                                            const int Ring_B,
+                                                            const int det1,
+                                                            const int det2,
+                                                            const int timing_pos_num = 0) const;
+
   void get_bin_for_gantry_coordinate_pair(Bin& bin,
-						  const CartesianCoordinate3D<float>& coord_1,
-						  const CartesianCoordinate3D<float>& coord_2) const;
+                                          const CartesianCoordinate3D<float>& coord_1,
+                                          const CartesianCoordinate3D<float>& coord_2) const;
 
 private:
   float ring_radius;

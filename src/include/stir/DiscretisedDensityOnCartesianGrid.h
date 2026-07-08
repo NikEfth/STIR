@@ -73,25 +73,22 @@ public:
 
   // TODO: this is a confusing name
   //! Get the size of the cartesian grid
-  inline BasicCoordinate<num_dimensions,int> get_lengths() const;
+  inline BasicCoordinate<num_dimensions, int> get_lengths() const;
 
   //! Get the smallest indices on the sampling grid for each dim
-  inline BasicCoordinate<num_dimensions,int> get_min_indices() const;
+  inline BasicCoordinate<num_dimensions, int> get_min_indices() const;
 
   //! Get the largest indices on the sampling grid for each dim
-  inline BasicCoordinate<num_dimensions,int> get_max_indices() const;
+  inline BasicCoordinate<num_dimensions, int> get_max_indices() const;
 
   //! Get the "most-central" voxel
-  BasicCoordinate<num_dimensions,float>
-  get_image_centre_in_index_coordinates() const;
+  BasicCoordinate<num_dimensions, float> get_image_centre_in_index_coordinates() const;
 
   //! Get the average location of image sample points in physical coordinates
-  CartesianCoordinate3D<float>
-  get_image_centre_in_physical_coordinates() const;
+  CartesianCoordinate3D<float> get_image_centre_in_physical_coordinates() const;
 
   //! Get the average location of image sample points in LPS patient coordinates
-  CartesianCoordinate3D<float>
-  get_image_centre_in_LPS_coordinates() const;
+  CartesianCoordinate3D<float> get_image_centre_in_LPS_coordinates() const;
 
 protected:
   inline bool actual_has_same_characteristics(DiscretisedDensity<num_dimensions, elemT> const&,

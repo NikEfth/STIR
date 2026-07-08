@@ -324,8 +324,9 @@ protected:
                                          const CartesianCoordinate3D<float>& point1_physical_coord,
                                          const CartesianCoordinate3D<float>& point2_physical_coord);
 
-  float exp_integral_over_attenuation_image_between_scattpoint_det(const CartesianCoordinate3D<float>& scatter_point_physical_coord,
-                                                                   const CartesianCoordinate3D<float>& detector_physical_coord);
+  float
+  exp_integral_over_attenuation_image_between_scattpoint_det(const CartesianCoordinate3D<float>& scatter_point_physical_coord,
+                                                             const CartesianCoordinate3D<float>& detector_physical_coord);
 
   float integral_over_activity_image_between_scattpoint_det(const CartesianCoordinate3D<float>& scatter_point_physical_coord,
                                                             const CartesianCoordinate3D<float>& detector_physical_coord);
