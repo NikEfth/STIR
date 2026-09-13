@@ -1561,6 +1561,11 @@ Scanner::set_params(Type type_v,
     set_scanner_geometry("Cylindrical");
   else
     set_scanner_geometry(scanner_geometry_v);
+
+#if STIR_VERSION < 070000
+  if (this->scanner_geometry == "Cylindrical")
+    this->set_up();
+#endif
 }
 
 void
