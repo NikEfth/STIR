@@ -868,8 +868,16 @@ interpolate_projdata_3d(ProjData& proj_data_out,
 
           for (int i_axial = min_axial_pos; i_axial <= max_axial_pos; ++i_axial)
             {
-              int r1, r2;
-              proj_data_info_in_up_no_arc_corr_sptr->get_ring_pair_for_segment_axial_pos_num(r1, r2, i_seg, i_axial);
+              ProjDataInfoCylindrical::RingNumPairs ring_pairs
+                  = proj_data_info_in_up_no_arc_corr_sptr->get_all_ring_pairs_for_segment_axial_pos_num(i_seg, i_axial);
+              if (ring_pairs.size() == 0)
+                {
+                  warning(boost::format("zero number of ring pairs for segment %1%, axial %2%") % i_seg, i_axial);
+                  continue;
+                }
+              // int r1, r2;
+              // proj_data_info_in_up_no_arc_corr_sptr->get_ring_pair_for_segment_axial_pos_num(r1, r2, i_seg, i_axial);
+              // std::cout << r1 << " " << r2 << " " <<  ring_pairs[0].first << " "<< ring_pairs[0].second << std::endl;
               // For the view and tangential position we have to use the finer template, as otherwise we might run
               // into problems with the downsampled.
               for (int i_view = proj_data_info_in_up_no_arc_corr_sptr->get_min_view_num();
@@ -882,11 +890,16 @@ interpolate_projdata_3d(ProjData& proj_data_out,
                     {
                       int c1, c2;
                       proj_data_info_in_up_no_arc_corr_sptr->get_det_num_pair_for_view_tangential_pos_num(c1, c2, i_view, i_tang);
-                      // dynamic_cast<ProjDataInfoCylindricalNoArcCorr*
-                      // >(in_up_projdata.get_proj_data_info_sptr().get())->get_det_pair_for_bin(c1, r1, c2, r2,
-                      // tmp_bin);
-                      // std::cout << r2 << " " << r1 << " " << c2 << " " << c1 << std::endl;
-                      downsampled_array_4d[r1][r2][c1][c2] = sino3D[i_axial][i_view][i_tang];
+
+                      for (size_t i_ring_pair = 0; i_ring_pair < ring_pairs.size(); ++i_ring_pair)
+                        {
+                          if (ring_pairs[i_ring_pair].first >= 0 && ring_pairs[i_ring_pair].second >= 0
+                              && ring_pairs[i_ring_pair].first < proj_data_info_in_up_sptr->get_scanner_sptr()->get_num_rings()
+                              && ring_pairs[i_ring_pair].second < proj_data_info_in_up_sptr->get_scanner_sptr()->get_num_rings())
+                            downsampled_array_4d[ring_pairs[i_ring_pair].first][ring_pairs[i_ring_pair].second][c1][c2]
+                                = sino3D[i_axial][i_view][i_tang];
+                        }
+                      // downsampled_array_4d[r1][r2][c1][c2] = sino3D[i_axial][i_view][i_tang];
                     }
                 }
             }
@@ -931,13 +944,24 @@ interpolate_projdata_3d(ProjData& proj_data_out,
                     {
                       // std::cout << i_axial << " " << i_view << " " << i_tang << std::endl;
                       float value = 0.0;
-                      int dr1, dr2;
-                      proj_data_info_out_no_arc_corr_sptr->get_ring_pair_for_segment_axial_pos_num(dr1, dr2, i_seg, i_axial);
-
-                      const double r1 = (dr1 - (num_rings_out - 1) * 0.5) * ring_ratio + (num_rings_in - 1) * 0.5;
-                      const double r2 = (dr2 - (num_rings_out - 1) * 0.5) * ring_ratio + (num_rings_in - 1) * 0.5;
-                      BasicCoordinate<4, double> pos = make_coordinate(r1, r2, (double)(d1), (double)(d2));
-                      value = mich_data_interpolator(pos); // * norm_seg[cur_slice][cur_phi * mh_normsino.numray +
+                      // int dr1, dr2;
+                      // proj_data_info_out_no_arc_corr_sptr->get_ring_pair_for_segment_axial_pos_num(dr1, dr2, i_seg, i_axial);
+                      ProjDataInfoCylindrical::RingNumPairs ring_pairs
+                          = proj_data_info_out_no_arc_corr_sptr->get_all_ring_pairs_for_segment_axial_pos_num(i_seg, i_axial);
+                      // if(dr1 != ring_pairs[0].first || dr2 != ring_pairs[0].second)
+                      //   std::cout << ring_pairs.size() << ": " << dr1 << " " << dr2 << " " <<  ring_pairs[0].first << " "<<
+                      //   ring_pairs[0].second << std::endl;
+                      for (size_t i_ring_pair = 0; i_ring_pair < ring_pairs.size(); ++i_ring_pair)
+                        {
+                          // std::cout <<ring_pair.first << " " << ring_pair.second << std::endl;
+                          const double r1 = (ring_pairs[i_ring_pair].first - (num_rings_out - 1) * 0.5) * ring_ratio
+                                            + (num_rings_in - 1) * 0.5;
+                          const double r2 = (ring_pairs[i_ring_pair].second - (num_rings_out - 1) * 0.5) * ring_ratio
+                                            + (num_rings_in - 1) * 0.5;
+                          BasicCoordinate<4, double> pos = make_coordinate(r1, r2, (double)(d1), (double)(d2));
+                          value += mich_data_interpolator(pos); // * norm_seg[cur_slice][cur_phi * mh_normsino.numray +
+                        }
+                      value /= static_cast<float>(ring_pairs.size());
                       _sino3D[i_axial][i_view][i_tang] = value;
                     }
                 }

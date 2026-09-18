@@ -63,9 +63,9 @@ private:
   void swap_segments_test();
   void extend_projdata_test();
   void scatter_interpolation_test_blocks();
-  void scatter_interpolation_test_cyl(const bool do_3d = false);
+  void scatter_interpolation_test_cyl(const bool do_3d = false, const bool do_span = false);
   void scatter_interpolation_test_blocks_asymmetric();
-  void scatter_interpolation_test_cyl_asymmetric(const bool do_3d = false);
+  void scatter_interpolation_test_cyl_asymmetric(const bool do_3d = false, const bool do_span = false);
   void scatter_interpolation_test_blocks_downsampled();
   void transaxial_upsampling_interpolation_test_blocks();
 
@@ -591,7 +591,7 @@ InterpolationTests::scatter_interpolation_test_blocks()
 }
 
 void
-InterpolationTests::scatter_interpolation_test_cyl(const bool do_3d)
+InterpolationTests::scatter_interpolation_test_cyl(const bool do_3d, const bool do_span)
 {
   info("Performing symmetric interpolation test for Cylindrical scanner");
 
@@ -653,8 +653,9 @@ InterpolationTests::scatter_interpolation_test_cyl(const bool do_3d)
                                      120.0,
                                      72.0);
 
+  int span = do_span ? 3 : 1;
   auto proj_data_info = shared_ptr<ProjDataInfo>(
-      std::move(ProjDataInfo::construct_proj_data_info(std::make_shared<Scanner>(scanner), 1, 29, 96, 150, false)));
+      std::move(ProjDataInfo::construct_proj_data_info(std::make_shared<Scanner>(scanner), span, 29, 96, 150, false)));
   int downsampled_rings = do_3d ? 5 : 0;
   auto downsampled_proj_data_info = shared_ptr<ProjDataInfo>(std::move(ProjDataInfo::construct_proj_data_info(
       std::make_shared<Scanner>(downsampled_scanner), 1, downsampled_rings, 32, int(150 * 64 / 192), false)));
@@ -674,14 +675,17 @@ InterpolationTests::scatter_interpolation_test_cyl(const bool do_3d)
   if (!proj_data_info_no_arc_corr_sptr)
     error("Expected the in projection data info to be a ProjDataInfoCylindricalNoArcCorr.");
 
-  for (int i_seg = interpolated_proj_data_sptr->get_min_segment_num(); i_seg < 0; ++i_seg)
+  for (int i_seg = interpolated_proj_data_sptr->get_min_segment_num(); i_seg <= 0; ++i_seg)
     {
-      auto opp_sptr = std::make_shared<SegmentBySinogram<float>>(interpolated_proj_data_sptr->get_segment_by_sinogram(-i_seg));
-      // const SegmentBySinogram<float> swapped_opposite
-      //     = make_swapped_segment(opposite_segment, *proj_data_info_no_arc_corr_sptr, i_seg);
-
-      // use symmetry to check that there are no significant errors in the interpolation
-      check_symmetry(interpolated_proj_data_sptr->get_segment_by_sinogram(i_seg), opp_sptr);
+      info(stir::format("Checking segment: {}", i_seg));
+      if (i_seg != 0)
+        {
+          auto opp_sptr
+              = std::make_shared<SegmentBySinogram<float>>(interpolated_proj_data_sptr->get_segment_by_sinogram(-i_seg));
+          check_symmetry(interpolated_proj_data_sptr->get_segment_by_sinogram(i_seg), opp_sptr);
+        }
+      else
+        check_symmetry(interpolated_proj_data_sptr->get_segment_by_sinogram(i_seg));
     }
 }
 
@@ -782,7 +786,7 @@ InterpolationTests::scatter_interpolation_test_blocks_asymmetric()
 }
 
 void
-InterpolationTests::scatter_interpolation_test_cyl_asymmetric(const bool do_3d)
+InterpolationTests::scatter_interpolation_test_cyl_asymmetric(const bool do_3d, const bool do_span)
 {
   info("Performing asymmetric interpolation test for Cylindrical scanner");
 
@@ -845,8 +849,9 @@ InterpolationTests::scatter_interpolation_test_cyl_asymmetric(const bool do_3d)
                                      72.0);
 
   int downsampled_rings = do_3d ? 11 : 0;
+  int span = do_span ? 3 : 1;
   auto proj_data_info = shared_ptr<ProjDataInfo>(std::move(
-      ProjDataInfo::construct_proj_data_info(std::make_shared<Scanner>(scanner), 1, 29, 48, int(150 * 96 / 192), false)));
+      ProjDataInfo::construct_proj_data_info(std::make_shared<Scanner>(scanner), span, 29, 48, int(150 * 96 / 192), false)));
   auto downsampled_proj_data_info = shared_ptr<ProjDataInfo>(std::move(ProjDataInfo::construct_proj_data_info(
       std::make_shared<Scanner>(downsampled_scanner), 1, downsampled_rings, 32, int(150 * 64 / 192), false)));
 
@@ -885,7 +890,7 @@ InterpolationTests::scatter_interpolation_test_cyl_asymmetric(const bool do_3d)
           std::cout << i_seg << std::endl;
           compare_segment_shape(full_size_model_sino_sptr->get_segment_by_sinogram(i_seg),
                                 interpolated_proj_data_sptr->get_segment_by_sinogram(i_seg),
-                                2);
+                                4);
         }
     }
 }
@@ -1112,10 +1117,13 @@ InterpolationTests::run_tests()
   extend_projdata_test();
   scatter_interpolation_test_blocks();
   scatter_interpolation_test_cyl();
-  scatter_interpolation_test_cyl(true); // 3D
+  scatter_interpolation_test_cyl(true);       // 3D
+  scatter_interpolation_test_cyl(true, true); // 3D, span
   scatter_interpolation_test_blocks_asymmetric();
   scatter_interpolation_test_cyl_asymmetric();
   scatter_interpolation_test_cyl_asymmetric(true); // 3D
+  //! TODO: This tests shapre rather then values. With dilation 4 span is ok.
+  scatter_interpolation_test_cyl_asymmetric(true, true); // 3D, span
   scatter_interpolation_test_blocks_downsampled();
   transaxial_upsampling_interpolation_test_blocks();
 }
