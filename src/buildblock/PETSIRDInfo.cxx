@@ -226,15 +226,6 @@ PETSIRDInfo::PETSIRDInfo(shared_ptr<const petsird::Header> header_sptr, std::str
   if (geom.replicated_modules[0].object.detecting_elements.transforms.empty())
     error("PETSIRDInfo: detecting_elements.transforms is empty (cannot infer element spacing/radius).");
 
-  //! TODO: Determine the DOI based on material
-  float average_doi = 0.0;
-  if (get_petsird_scanner_info().bulk_materials.size() > 0)
-    {
-      const std::string& material = get_petsird_scanner_info().bulk_materials[0].name;
-      if (material.size() > 0)
-        average_doi = (material == "BGO") ? 5.0f : (material == "LSO" || material == "LYSO") ? 7.0f : 0.0f;
-    }
-
   type_of_module = get_petsird_scanner_info().scanner_geometry.replicated_modules.size() - 1;
   if (type_of_module > 0)
     {
@@ -263,6 +254,38 @@ PETSIRDInfo::PETSIRDInfo(shared_ptr<const petsird::Header> header_sptr, std::str
       unique_dim1_values, unique_dim2_values, unique_dim3_values, radius, radius_indx, rotation_axis);
   if (rotation_axis == -1)
     is_cylindrical = false;
+
+  float average_doi = 0.0;
+  petsird::ExpandedDetectionBin expanded_detection_bin{ 0, 0, 0 }; // Check the first element of the first module
+  auto ADP = petsird_helpers::geometry::get_ADP(get_petsird_scanner_info(), type_of_module, expanded_detection_bin);
+  std::cout << "ADP: " << ADP << std::endl;
+
+  for (uint32_t module = 0; module < 1; module++)
+    {
+      auto box = petsird_helpers::geometry::get_detecting_box(get_petsird_scanner_info(), module, expanded_detection_bin);
+      //! \warning I pressume that this is a corner of the inner side w.r.t. to the scanner center.
+      const auto& front = box.corners[0].c;
+      const auto depth_edge = box.corners[4].c - front;
+      const float crystal_length = my_norm(depth_edge);
+      if (crystal_length <= 0.F)
+        error("PETSIRDInfo: Crystal has zero length.");
+
+      average_doi = dot(ADP.c - front, depth_edge) / crystal_length;
+    }
+
+  //! Determine the DOI based on material's typical values, if ADP was not helpful.
+  if (average_doi == 0) // For older PETSIRD versions
+    {
+      if (get_petsird_scanner_info().bulk_materials.size() > 0)
+        {
+          const std::string& material = get_petsird_scanner_info().bulk_materials[0].name;
+          if (material.size() > 0)
+            average_doi = (material == "BGO") ? 5.0f : (material == "LSO" || material == "LYSO") ? 7.0f : 0.0f;
+        }
+    }
+
+  // Convert the detected radius to the inner radius
+  radius -= average_doi;
 
   const std::set<float>& main_axis = vector_utils::get_largest_vector(unique_dim1_values, unique_dim2_values, unique_dim3_values);
 
